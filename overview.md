@@ -1,4 +1,5 @@
 Játék rövid leírása
+
 Az OpenTTD játék fő célja egy szállító cég felépítése, ami a lehető legnagyobb profitot képes generálni.
 Ezt különböző áruk, anyagok elszállításával a különböző fuvarozási lehetőségek (buszok, vonatok, repülők, hajók stb.) segítségének optimális alkalmazásával tudunk elérni.
 Ezeket az erőforrásokat általában egyik pontból a másikba kell eljuttatni, a játék térképén a megfelelő infrastruktúra megépítésével.
