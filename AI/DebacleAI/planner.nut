@@ -1,13 +1,11 @@
 class Planner {
     town_list = null;
-    town_list2 = null;
-    town_acceptance_list = null;
+    // town_acceptance_list = null;
     date_town_acceptance_update  = 0;
 
     constructor() {
 		this.town_list     = null;
-		this.town_list2    = null;
-		this.town_acceptance_list = null;
+		// this.town_acceptance_list = null;
 		date_town_acceptance_update  = 0;
 	}
 
@@ -18,29 +16,39 @@ class Planner {
 
 function Planner::InitTownList()
 {
-    this.town_list2 = AITownList(); 
-	this.town_list  = AIList();
-	this.town_list.AddList(this.town_list2);
+    this.town_list = AITownList();
 	town_list.Valuate(AITown.GetPopulation);
-	this.town_acceptance_list = AIList();
+    town_list.Sort(AIAbstractList.SORT_BY_VALUE, false);
+    //AILog.Info(AITown.GetName(town_list.Begin()));
+	//this.town_acceptance_list = AIList();
 	UpdateTownAcceptanceList();
 }
 
 function Planner::UpdateTownAcceptanceList()
 {
 	if (AIDate.GetCurrentDate() - date_town_acceptance_update > 60)	{
-		town_acceptance_list.Clear();
-		foreach ( twn, v in town_list){
-            local manager = TownManager();
-			local acceptance = manager.GetAcceptance(twn);
-			town_acceptance_list.AddItem(twn, acceptance);
-		 	AIController.Sleep(1);
-		}
+		//town_acceptance_list.Clear();
+        AILog.Info("Updating town list");
+        town_list.Clear();
+        this.town_list = AITownList();
+        town_list.Valuate(AITown.GetPopulation);
+        town_list.Sort(AIAbstractList.SORT_BY_VALUE, false);
+        // for (local i = town_list.Begin(); town_list.HasNext(); i = town_list.Next()) {
+        //     AILog.Info(AITown.GetName(i));
+        // }
+		// foreach ( twn, v in town_list) {
+        //     local manager = TownManager();
+		// 	local acceptance = manager.GetAcceptance(twn);
+		// 	town_acceptance_list.AddItem(twn, acceptance);
+		// }
+        // for (local i = town_acceptance_list.Begin(); town_acceptance_list.HasNext(); i = town_acceptance_list.Next()) {
+        //     AILog.Info(AITown.GetName(i));
+        // }
 		date_town_acceptance_update = AIDate.GetCurrentDate();
 	}
 }
 
-function Planner::FindTownsToBuild() 
+function Planner::FindTownsToBuild()
 {
     local town = null;
     local town2 = null;
@@ -50,31 +58,47 @@ function Planner::FindTownsToBuild()
     local distance_limit = 50
 
     UpdateTownAcceptanceList();
-    if (town_acceptance_list.Count()) {
-        for (town_it = town_acceptance_list.Begin(); town_acceptance_list.HasNext(); town_it = town_acceptance_list.Next()){					
-			local tl2 = AITileList();
-			tl2.AddRectangle(AITown.GetLocation(town_it) + AIMap.GetTileIndex(-8, -8), AITown.GetLocation(town_it) + AIMap.GetTileIndex(8, 8));
-			tl2.Valuate(AIRoad.IsRoadStationTile);
-			tl2.KeepValue(1);
+    if (town_list.Count()) {
+        AILog.Info("Looking for town");
+        for (town_it = town_list.Begin(); town_list.HasNext(); town_it = town_list.Next()){
+            town = town_it;
+            found = true;
+            town_list.RemoveItem(town_it);
+	        break;
+            // local tl = AITileList();
+			// tl.AddRectangle(AITown.GetLocation(town_it) + AIMap.GetTileIndex(-8, -8), AITown.GetLocation(town_it) + AIMap.GetTileIndex(8, 8));
+			// tl.Valuate(AIRoad.IsRoadStationTile);
+			// tl.KeepValue(1);
 
-			if (!tl2.Count()){
-				town = town_it;
-				found = true;
-				town_acceptance_list.RemoveItem(town_it);
-				break;
-			}
+			// if (tl.IsEmpty()){
+			// 	town = town_it;
+			// 	found = true;
+			// 	town_list.RemoveItem(town_it);
+			// 	break;
+            // }
 		}
         if (found) {
+            AILog.Info("Firt Town Found: " + AITown.GetName(town));
+            AILog.Info("Looking for Second Town");
             found = false;
-            for (town_it = town_acceptance_list.Begin(); town_acceptance_list.HasNext(); town_it = town_acceptance_list.Next()) {
-                if (AIMap.DistanceManhattan(AITown.GetLocation(town), AITown.GetLocation(town_it)) > 40 && AIMap.DistanceManhattan(AITown.GetLocation(town), AITown.GetLocation(town_it)) < distance_limit) {
-                    town2 = town_it;
-                    found = true;
-                    town_acceptance_list.RemoveItem(town_it);
-                    break;
+            for (local i = 0; i < town_list.Count() && !found; i++) {
+                for (town_it = town_list.Begin(); town_list.HasNext(); town_it = town_list.Next()) {
+                    if (AIMap.DistanceManhattan(AITown.GetLocation(town), AITown.GetLocation(town_it)) > 30 && AIMap.DistanceManhattan(AITown.GetLocation(town), AITown.GetLocation(town_it)) < distance_limit) {
+                        town2 = town_it;
+                        found = true;
+                        town_list.RemoveItem(town_it);
+                        break;
+                    }
                 }
-                distance_limit += 10;
+                distance_limit += 5;
             }
+            if (!found) {
+                AILog.Info("Second town not found");
+                return null;
+            }
+        } else {
+            AILog.Info("Town not found");
+            return null;
         }
     }
     if (found) {
