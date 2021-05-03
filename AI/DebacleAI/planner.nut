@@ -55,7 +55,7 @@ function Planner::FindTownsToBuild()
     local towns = [0,0];
     local town_it = AITown();
     local found = false;
-    local distance_limit = 50
+    local distance_limit = 40
 
     UpdateTownAcceptanceList();
     if (town_list.Count()) {
@@ -90,7 +90,7 @@ function Planner::FindTownsToBuild()
                         break;
                     }
                 }
-                distance_limit += 5;
+                distance_limit += 10;
             }
             if (!found) {
                 AILog.Info("Second town not found");

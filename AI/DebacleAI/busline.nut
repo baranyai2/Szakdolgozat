@@ -123,6 +123,7 @@ function Line::AddDepot(tile)
                         }
                         if (found) {
                             success = AIRoad.BuildRoadDepot(it, tile2);
+                            AIRoad.BuildRoad(tile2, it);
                             if (success) {
                                 found = builder.RoadBuilder(it, AITown.GetLocation(towns[1]));
                             }
