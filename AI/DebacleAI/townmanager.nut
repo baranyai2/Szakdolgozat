@@ -119,16 +119,19 @@ function TownManager::GetStationAcceptance(tile) {
             NewStationTiles.SetValue(i, (NewStationTiles.GetValue(i) + 1));
           }
         }
+        for (local i = NewStationTiles.Begin(); NewStationTiles.HasNext(); i = NewStationTiles.Next()) {
+          acceptance += (AITile.GetCargoAcceptance(i, 0, 1, 1, 0) / NewStationTiles.GetValue(i));
+        }
+        return acceptance;
       } else {
         acceptance = AITile.GetCargoAcceptance(tile, 0, 1, 1, statrad);
         return acceptance;
       }
+    } else {
+      acceptance = AITile.GetCargoAcceptance(tile, 0, 1, 1, statrad);
+      return acceptance;
     }
   }
-  for (local i = NewStationTiles.Begin(); NewStationTiles.HasNext(); i = NewStationTiles.Next()) {
-    acceptance += (AITile.GetCargoAcceptance(i, 0, 1, 1, 0) / NewStationTiles.GetValue(i));
-  }
-  return acceptance;
 }
 
 function TownManager::BuildStation(tile, town_id)
@@ -160,13 +163,13 @@ function TownManager::BuildStation(tile, town_id)
       return true;
     } else {
       AILog.Info("Station building failed");
-      return false;
+      return null;
     }
   } else {
-    if (adjacent[0] != false && adjacent[3] != false) {
+    if (adjacent[0] != false && adjacent[3] != false && adjacent[1] == false && adjacent[2] == false) {
       built = AIRoad.BuildDriveThroughRoadStation(tile, adjacent[0], AIRoad.ROADVEHTYPE_BUS, AIStation.STATION_NEW);
       builder.RoadBuilder(adjacent[3], AITown.GetLocation(town_id));
-    } else if (adjacent[1] != false && adjacent[2] != false) {
+    } else if (adjacent[1] != false && adjacent[2] != false && adjacent[0] == false && adjacent[3] == false) {
       built = AIRoad.BuildDriveThroughRoadStation(tile, adjacent[1], AIRoad.ROADVEHTYPE_BUS, AIStation.STATION_NEW);
       builder.RoadBuilder(adjacent[2], AITown.GetLocation(town_id));
     } else {
@@ -177,7 +180,7 @@ function TownManager::BuildStation(tile, town_id)
       return true;
     } else {
       AILog.Info("DriveThroughStation building failed");
-      return false;
+      return null;
     }
   }
 }

@@ -45,7 +45,7 @@ function Line::CreateNewLine(town_pair)
             AILog.Info("Station location finding failed");
             return false;
         }
-        if (builtstation.len()) {
+        if (builtstation.len() == 2) {
             stations.append(stops[0]);
             stations.append(stops[1]);
         } else {
@@ -102,17 +102,15 @@ function Line::AddDepot(tile)
         if (tl.Count()) {
             tl.Valuate(AIRoad.IsRoadTile);
             tl.KeepValue(0);
-	   }
-       if (tl.Count()) {
-           tl.Valuate(AITile.GetSlope);
-           tl.KeepValue(0);
-       }
-       if (tl.Count()) {
+        }
+        if (tl.Count()) {
+            tl.Valuate(AITile.GetSlope);
+            tl.KeepValue(0);
+        }
+        if (tl.Count()) {
             tl.Valuate(AITile.GetDistanceManhattanToTile, AITown.GetLocation(towns[1]));
             tl.Sort(AITileList.SORT_BY_VALUE, true);
-
-            for (it = tl.Begin(); tl.HasNext() && !success; it = tl.Next())
-            {
+            for (it = tl.Begin(); tl.HasNext() && !success; it = tl.Next()) {
                 local adjacentTiles = builder.GetAdjacentTiles(it);
                 for(local tile2 = adjacentTiles.Begin(); adjacentTiles.HasNext(); tile2 = adjacentTiles.Next()) {
                     if(AIRoad.IsRoadTile(tile2) && !AITile.GetSlope(tile2) && !AIRoad.IsRoadStationTile(tile2)) {
@@ -170,7 +168,7 @@ function Line::AddBuses()
         if(AIVehicle.IsValidVehicle(new_bus)){
             this.buses.append(new_bus);
 
-            local bus = this.buses[i];
+            local bus = this.buses.top();
 
             AIOrder.AppendOrder(bus, this.depot, AIOrder.AIOF_SERVICE_IF_NEEDED);
             AIOrder.AppendOrder(bus, this.stations[0], AIOrder.AIOF_NONE);
@@ -195,12 +193,12 @@ function Line::EstimateBusesNeeded(station1, station2)
     if(!station1 || !station2) {
         return 0;
     }
-    local acceptance = AITile.GetCargoAcceptance(station1, 0, 1, 1, AIStation.GetCoverageRadius(AIStation.STATION_BUS_STOP)) +
-        AITile.GetCargoAcceptance(station2, 0, 1, 1, AIStation.GetCoverageRadius(AIStation.STATION_BUS_STOP));
+    local manager = TownManager();
+    local acceptance = manager.GetStationAcceptance(station1) + manager.GetStationAcceptance(station2);
     local distance = AIMap.DistanceManhattan(station1, station2);
     AILog.Info("Estimate: distance: " + distance + " acceptance: " + acceptance);
     local needed_buses = 2 + (acceptance/35) * (distance/35);
-    if (needed_buses > 10 ) {
+    if (needed_buses > 25) {
         needed_buses = 10;
     }
     AILog.Info("Needed buses: " + needed_buses);
