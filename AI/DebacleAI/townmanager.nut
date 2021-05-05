@@ -20,7 +20,7 @@ function TownManager::FindStationLocation(town_id)
   local builder = Builder();
   local tl2 = AITileList();
 
-  tl.AddRectangle(town_loc + AIMap.GetTileIndex(-12, -12), town_loc + AIMap.GetTileIndex(12, 12));
+  tl.AddRectangle(town_loc + AIMap.GetTileIndex(-8, -8), town_loc + AIMap.GetTileIndex(8, 8));
   local tl3 = AITileList();
   tl3.AddList(tl);
 	tl3.Valuate(AIRoad.IsRoadStationTile);
@@ -29,6 +29,11 @@ function TownManager::FindStationLocation(town_id)
   for (local rstl = tl3.Begin(); tl3.HasNext(); rstl = tl3.Next()) {
     tl.RemoveRectangle(rstl + AIMap.GetTileIndex(-4, -4), rstl + AIMap.GetTileIndex(4, 4));
   }
+
+  tl.Valuate(AIMap.IsValidTile);
+  tl.KeepValue(1);
+  tl.Valuate(AITile.IsWaterTile);
+  tl.KeepValue(0);
 
   tl2.Clear();
   if (tl.Count()) {
@@ -56,25 +61,14 @@ function TownManager::FindStationLocation(town_id)
             }
           }
         }
-        tl.Sort(AIList.SORT_BY_VALUE, false);
+        tl.Sort(AIList.SORT_BY_VALUE, AIList.SORT_DESCENDING);
         if (tl.GetValue(tl.Begin()) > 15) {
           station_loc = tl.Begin();
         } else {
-          AILog.Info("No station location worth exploring");
+          AILog.Info("No station location worth exploring " + tl.GetValue(tl.Begin()));
           return false;
         }
-        if (!AIRoad.IsRoadTile(station_loc) && !AITile.IsBuildable(station_loc)) {
-          AILog.Info("Demolishing tile: " + station_loc);
-          demolished = AITile.DemolishTile(station_loc);
-        } else {
-          demolished = true;
-        }
-        if (demolished) {
-          return station_loc;
-        } else {
-          AILog.Info("Could not demolish tile");
-          return false;
-        }
+        return station_loc;
       } else {
         AILog.Info("Available tiles are slopes");
         return false;
@@ -92,7 +86,7 @@ function TownManager::FindStationLocation(town_id)
 function TownManager::GetStationAcceptance(tile) {
   if (!AIMap.IsValidTile(tile)) {
     AILog.Info("Tile is not valid");
-    return false;
+    return 0;
   }
   local NewStationTiles = AITileList();
   local SearchedArea = AITileList();
@@ -105,32 +99,38 @@ function TownManager::GetStationAcceptance(tile) {
   NewStationTiles.AddRectangle(tile + AIMap.GetTileIndex(-statrad, -statrad), tile + AIMap.GetTileIndex(statrad, statrad));
   SearchedArea.AddRectangle(tile + AIMap.GetTileIndex(-(2 * statrad), -(2 * statrad)), tile + AIMap.GetTileIndex((2 * statrad), (2 * statrad)));
 
-  for (local i = NewStationTiles.Begin(); NewStationTiles.HasNext(); i = NewStationTiles.Next()) {
-    NewStationTiles.SetValue(i, 1);
+  if (!NewStationTiles.IsEmpty()) {
+    for (local i = NewStationTiles.Begin(); NewStationTiles.HasNext(); i = NewStationTiles.Next()) {
+      NewStationTiles.SetValue(i, 1);
+    }
   }
-
-  for (tile_it = SearchedArea.Begin(); SearchedArea.HasNext(); tile_it = SearchedArea.Next()) {
-    OldStationTiles.Clear();
-    if (AIRoad.IsRoadStationTile(tile_it)) {
-      if (AIStation.IsValidStation(AIStation.GetStationID(tile_it))) {
-        OldStationTiles.AddRectangle(tile_it + AIMap.GetTileIndex(-statrad, -statrad), tile + AIMap.GetTileIndex(statrad, statrad));
-        for (local i = NewStationTiles.Begin(); NewStationTiles.HasNext(); i = NewStationTiles.Next()) {
-          if (OldStationTiles.HasItem(i)) {
-            NewStationTiles.SetValue(i, (NewStationTiles.GetValue(i) + 1));
+  if (!SearchedArea.IsEmpty() && !NewStationTiles.IsEmpty()) {
+    for (tile_it = SearchedArea.Begin(); SearchedArea.HasNext(); tile_it = SearchedArea.Next()) {
+      OldStationTiles.Clear();
+      if (AIRoad.IsRoadStationTile(tile_it)) {
+        if (AIStation.IsValidStation(AIStation.GetStationID(tile_it))) {
+          OldStationTiles.AddRectangle(tile_it + AIMap.GetTileIndex(-statrad, -statrad), tile + AIMap.GetTileIndex(statrad, statrad));
+          for (local i = NewStationTiles.Begin(); NewStationTiles.HasNext(); i = NewStationTiles.Next()) {
+            if (OldStationTiles.HasItem(i)) {
+              NewStationTiles.SetValue(i, (NewStationTiles.GetValue(i) + 1));
+            }
           }
+          for (local i = NewStationTiles.Begin(); NewStationTiles.HasNext(); i = NewStationTiles.Next()) {
+            acceptance += (AITile.GetCargoAcceptance(i, 0, 1, 1, 0) / NewStationTiles.GetValue(i));
+          }
+          return acceptance;
+        } else {
+          acceptance = AITile.GetCargoAcceptance(tile, 0, 1, 1, statrad);
+          return acceptance;
         }
-        for (local i = NewStationTiles.Begin(); NewStationTiles.HasNext(); i = NewStationTiles.Next()) {
-          acceptance += (AITile.GetCargoAcceptance(i, 0, 1, 1, 0) / NewStationTiles.GetValue(i));
-        }
-        return acceptance;
       } else {
         acceptance = AITile.GetCargoAcceptance(tile, 0, 1, 1, statrad);
         return acceptance;
       }
-    } else {
-      acceptance = AITile.GetCargoAcceptance(tile, 0, 1, 1, statrad);
-      return acceptance;
     }
+  } else {
+    AILog.Info("List is empty");
+    return acceptance;
   }
 }
 
@@ -138,6 +138,7 @@ function TownManager::BuildStation(tile, town_id)
 {
   local builder = Builder();
   local built = false;
+  local demolished = false;
   local adjacentTiles = builder.GetAdjacentTiles(tile);
   local adjacent = []
   local i = null;
@@ -151,19 +152,27 @@ function TownManager::BuildStation(tile, town_id)
   }
 
   if (!AIRoad.IsRoadTile(tile)) {
-    for(local tile2 = adjacentTiles.Begin(); adjacentTiles.HasNext() && !built; tile2 = adjacentTiles.Next()) {
-      if(AIRoad.IsRoadTile(tile2) ) {
-        builder.RoadBuilder(tile2, tile);
-        built = AIRoad.BuildRoadStation(tile, tile2, AIRoad.ROADVEHTYPE_BUS, AIStation.STATION_NEW);
-        builder.RoadBuilder(tile2, AITown.GetLocation(town_id));
-      }
-    }
-    if (built) {
-      AILog.Info("Station built in: " + AITown.GetName(town_id));
-      return true;
+    if (!AITile.IsBuildable(tile)) {
+      AILog.Info("Demolishing tile: " + tile);
+      demolished = AITile.DemolishTile(tile);
     } else {
-      AILog.Info("Station building failed");
-      return null;
+      demolished = true;
+    }
+    if (demolished) {
+      for(local tile2 = adjacentTiles.Begin(); adjacentTiles.HasNext() && !built; tile2 = adjacentTiles.Next()) {
+        if(AIRoad.IsRoadTile(tile2) ) {
+          builder.RoadBuilder(tile2, tile);
+          built = AIRoad.BuildRoadStation(tile, tile2, AIRoad.ROADVEHTYPE_BUS, AIStation.STATION_NEW);
+          builder.RoadBuilder(tile2, AITown.GetLocation(town_id));
+        }
+      }
+      if (built) {
+        AILog.Info("Station built in: " + AITown.GetName(town_id));
+        return true;
+      } else {
+        AILog.Info("Station building failed");
+        return null;
+      }
     }
   } else {
     if (adjacent[0] != false && adjacent[3] != false && adjacent[1] == false && adjacent[2] == false) {

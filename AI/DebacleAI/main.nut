@@ -26,7 +26,7 @@ function DebacleAI::Start()
   AIRoad.SetCurrentRoadType(AIRoad.ROADTYPE_ROAD);
 
   local planner = Planner();
-  planner.InitTownList();
+  planner.BuildTownList();
 
   local towns;
   local lineCreated = null;
