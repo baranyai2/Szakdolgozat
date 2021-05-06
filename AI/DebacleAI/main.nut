@@ -15,7 +15,8 @@ class DebacleAI extends AIController
 	}
   function Start();
   function SetCompanyName();
-  function ManageLoan();
+  function GetMoney(amount);
+  function PayBackMoney();
 }
 
 function DebacleAI::Start()
@@ -29,18 +30,29 @@ function DebacleAI::Start()
   planner.BuildTownList();
 
   local towns;
+  local retries = 0;
+  local counter = 0;
   local lineCreated = null;
   local i = 0;
   local j;
   while (true) {
-    if (i%25 == 0){
-      this.company.SetLoanAmount(AICompany.GetMaxLoanAmount());
-      if (lines.len() && this.company.GetBankBalance(AICompany.COMPANY_SELF) > 30000) {
-        for (j = 0; j < lines.len(); j++) {
-          lines[j].ManageBuses();
+    if (i%50 == 0) {
+      local hasMoney = GetMoney(30000);
+      if (hasMoney && counter < 5) {
+        if (lines.len()) {
+          for (j = 0; j < lines.len(); j++) {
+            lines[j].ManageBuses();
+          }
         }
+      } else {
+        counter++;
+        AILog.Info("Failed to get enough money");
       }
-      if (this.company.GetBankBalance(AICompany.COMPANY_SELF) > 50000) {
+      PayBackMoney();
+    }
+    if (i%200 == 0) {
+      local hasMoney = GetMoney(50000);
+      if (hasMoney && retries < 10) {
         towns = planner.FindTownsToBuild();
         local line = Line();
         if (towns != null) {
@@ -51,18 +63,44 @@ function DebacleAI::Start()
             AILog.Info("Line created");
             lines.append(line);
           }
+        } else {
+          AILog.Info("Failed to create line");
+          retries++;
         }
       }
+      PayBackMoney();
     }
-    this.ManageLoan();
+    if (i%100000 == 0) {
+      retries = 0;
+      counter = 0;
+      AILog.Info("Resetting retries");
+      i = 0;
+    }
+    i++;
   }
 }
 
-function DebacleAI::ManageLoan()
+function DebacleAI::GetMoney(amount)
+{
+  local balance = this.company.GetBankBalance(AICompany.COMPANY_SELF);
+  local loan = this.company.GetLoanAmount();
+
+  if (balance > amount) {
+    return true;
+  }
+  if ((loan + amount) <= this.company.GetMaxLoanAmount()) {
+    this.company.SetLoanAmount(loan + amount);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function DebacleAI::PayBackMoney()
 {
   local balance = this.company.GetBankBalance(AICompany.COMPANY_SELF);
 	local loan = this.company.GetLoanAmount();
-	local pay_back_balance =  loan + this.company.GetLoanInterval();
+	local pay_back_balance = 5 * this.company.GetLoanInterval();
 	local loan_interval = this.company.GetLoanInterval();
 	local pay_back = 0;
 

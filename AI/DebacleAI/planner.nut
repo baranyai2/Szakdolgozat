@@ -64,9 +64,9 @@ function Planner::FindTownsToBuild()
                 }
             }
         }
-        for (local i = 0; i < n; i++) {
-            AILog.Info(AITown.GetName(townArray[i][0]) + " " + townArray[i][1]);
-        }
+        // for (local i = 0; i < n; i++) {
+        //     AILog.Info(AITown.GetName(townArray[i][0]) + " " + townArray[i][1]);
+        // }
         if (townArray[0][1] < 0.5) {
             AILog.Info("No town worth connectiong to");
             return null;

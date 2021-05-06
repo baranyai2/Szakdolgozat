@@ -290,7 +290,7 @@ function Line::ManageBuses() {
         this.needed_buses = AddBuses(this.depot, this.needed_buses);
         for (local i = 0; i < this.buses.len(); i++) {
             if (AIVehicle.IsStoppedInDepot(this.buses[i])) {
-                 SetupBus(this.buses[i]);
+                SetupBus(this.buses[i]);
             }
         }
     } else {
