@@ -9,6 +9,7 @@ class Line {
     needed_buses = null;
     groupID = null
     vehicles = null;
+    busesToRemove = null;
 
     constructor() {
         towns = [];
@@ -18,6 +19,8 @@ class Line {
         needed_buses = 0;
         groupID = null;
         vehicles = null;
+        busesToRemove = AIVehicleList();
+        busesToRemove.Clear();
     }
 
     function CreateNewLine(town_pair);
@@ -121,6 +124,8 @@ function Line::AddDepot(tile)
     local builder = Builder();
     local searchedArea = AITileList();
     local built = false;
+    local depos = AIDepotList(AITile.TRANSPORT_ROAD);
+
     searchedArea.AddRectangle(tile + AIMap.GetTileIndex(-15, -15), tile + AIMap.GetTileIndex(15, 15));
 
     searchedArea.Valuate(AIRoad.IsRoadDepotTile);
@@ -128,7 +133,7 @@ function Line::AddDepot(tile)
 
     if(!searchedArea.IsEmpty()) {
         for (local i = searchedArea.Begin(); searchedArea.HasNext(); i = searchedArea.Next()) {
-            if (AITile.GetOwner(i) == AICompany.COMPANY_SELF) {
+            if (depos.HasItem(i)) {
                 AILog.Info("Existing depot found");
                 return i;
             }
@@ -143,25 +148,31 @@ function Line::AddDepot(tile)
             newDepot.Valuate(AITile.GetSlope);
             newDepot.KeepValue(0);
             if (!newDepot.IsEmpty()) {
-                newDepot.Valuate(AITile.GetDistanceManhattanToTile, AITown.GetLocation(towns[1]));
-                newDepot.Sort(AITileList.SORT_BY_VALUE, AITileList.SORT_ASCENDING);
-                for (local i = newDepot.Begin(); newDepot.HasNext(); i = newDepot.Next()) {
-                    local adjacentTiles = builder.GetAdjacentTiles(i);
-                    for (local j = adjacentTiles.Begin(); adjacentTiles.HasNext(); j = adjacentTiles.Next()) {
-                        if (AIRoad.IsRoadTile(j) && !AITile.GetSlope(j) && !AIRoad.IsRoadStationTile(j)) {
-                            if (!AITile.IsBuildable(i)) {
-                                AITile.DemolishTile(i);
-                            }
-                            if (AITile.IsBuildable(i)) {
-                                built = AIRoad.BuildRoadDepot(i, j);
-                                AIRoad.BuildRoad(j, i);
-                                if (built) {
-                                    builder.RoadBuilder(i, tile)
-                                    return i;
+                newDepot.Valuate(AIRoad.IsRoadTile);
+                newDepot.KeepValue(0);
+                if (!newDepot.IsEmpty()) {
+                    newDepot.Valuate(AITile.GetDistanceManhattanToTile, AITown.GetLocation(towns[1]));
+                    newDepot.Sort(AITileList.SORT_BY_VALUE, AITileList.SORT_ASCENDING);
+                    for (local i = newDepot.Begin(); newDepot.HasNext(); i = newDepot.Next()) {
+                        local adjacentTiles = builder.GetAdjacentTiles(i);
+                        for (local j = adjacentTiles.Begin(); adjacentTiles.HasNext(); j = adjacentTiles.Next()) {
+                            if (AIRoad.IsRoadTile(j) && !AITile.GetSlope(j) && !AIRoad.IsRoadStationTile(j)) {
+                                if (!AITile.IsBuildable(i)) {
+                                    AITile.DemolishTile(i);
+                                }
+                                if (AITile.IsBuildable(i)) {
+                                    built = AIRoad.BuildRoadDepot(i, j);
+                                    AIRoad.BuildRoad(j, i);
+                                    if (built) {
+                                        builder.RoadBuilder(i, tile)
+                                        return i;
+                                    }
                                 }
                             }
                         }
                     }
+                } else {
+                    AILog.Info("Could not Find tile that is not road");
                 }
             } else {
                 AILog.Info("Could not find tile that is not slope");
@@ -263,6 +274,17 @@ function Line::SetupBus(bus) {
 }
 
 function Line::ManageBuses() {
+    if (!this.busesToRemove.IsEmpty()) {
+        for (local i = busesToRemove.Begin(); busesToRemove.HasNext(); i = busesToRemove.Next()) {
+            if (AIVehicle.IsStoppedInDepot(i)) {
+                local sold = AIVehicle.SellVehicle(i);
+                if (sold) {
+                    busesToRemove.RemoveItem(i);
+                    AILog.Info("Sold bus in depot");
+                }
+            }
+        }
+    }
     if (this.needed_buses != 0) {
         AILog.Info("Building additional buses");
         this.needed_buses = AddBuses(this.depot, this.needed_buses);
@@ -286,16 +308,7 @@ function Line::ManageBuses() {
             for (local i = 0; i < (this.buses.len() - newEstimate); i++) {
                 local removedBus = this.buses.pop();
                 AIVehicle.SendVehicleToDepot(removedBus);
-                while (!AIVehicle.IsStoppedInDepot(removedBus)) {
-                    AIController.Sleep(1);
-                    AILog.Info("Waiting for extra bus to get to depot");
-                }
-                local sold = AIVehicle.SellVehicle(removedBus);
-                if (sold) {
-                    AILog.Info("Sold Extra Vehicle");
-                } else {
-                    AILog.Info("Failed to sell vehicle");
-                }
+                this.busesToRemove.AddItem(removedBus, 0);
             }
         }
         for (local i = 0; i < this.buses.len(); i++) {
@@ -306,40 +319,25 @@ function Line::ManageBuses() {
                 if (oldmodel == newmodel) {
                     local cloned = AIVehicle.CloneVehicle(this.depot, this.buses[i], true);
                     if (AIVehicle.IsValidVehicle(cloned)) {
-                        AIVehicle.SendVehicleToDepot(this.buses[i]);
                         local oldBus = this.buses[i];
+                        AIVehicle.SendVehicleToDepot(oldBus);
+                        this.busesToRemove.AddItem(oldBus, 0);
                         this.buses[i] = cloned;
                         AIVehicle.StartStopVehicle(cloned);
-                        while (!AIVehicle.IsStoppedInDepot(oldBus)) {
-                            AIController.Sleep(1);
-                            AILog.Info("Waiting for old bus to get to depot");
-                        }
-                        if (AIVehicle.IsStoppedInDepot(oldBus)) {
-                            AIVehicle.SellVehicle(oldBus);
-                        }
                     } else {
                         AILog.Info("Failed to clone vehicle");
                     }
                 } else {
                     local oldBus = this.buses[i];
                     AIVehicle.SendVehicleToDepot(oldBus);
-                    while (!AIVehicle.IsStoppedInDepot(oldBus)) {
-                        AIController.Sleep(1);
-                        AILog.Info("Waiting for old bus to get to depot");
-                    }
-                    if (AIVehicle.IsStoppedInDepot(oldBus)) {
-                        AIVehicle.SellVehicle(oldBus);
-                        local newBus = AIVehicle.BuildVehicle(this.depot, newmodel);
-                        if (AIVehicle.IsValidVehicle(newBus)) {
-                            this.buses[i] = newBus;
-                            SetupBus(newbus);
-                        } else {
-                            AILog.Info("Failed to build new vehicle");
-                        }
+                    this.busesToRemove.AddItem(oldBus, 0);
+                    local newBus = AIVehicle.BuildVehicle(this.depot, newmodel);
+                    if (AIVehicle.IsValidVehicle(newBus)) {
+                        this.buses[i] = newBus;
+                        SetupBus(newBus);
                     } else {
-                        AILog.Info("Vehicle didnt arrive to depot");
+                        AILog.Info("Failed to build new vehicle");
                     }
-
                 }
             }
         }

@@ -171,7 +171,7 @@ function TownManager::BuildStation(tile, town_id)
         return true;
       } else {
         AILog.Info("Station building failed");
-        return null;
+        return false;
       }
     }
   } else {
@@ -188,8 +188,8 @@ function TownManager::BuildStation(tile, town_id)
       AILog.Info("DriveThroughStation built in: " + AITown.GetName(town_id));
       return true;
     } else {
-      AILog.Info("DriveThroughStation building failed");
-      return null;
+      AILog.Info("DriveThroughStation building failed " + tile);
+      return false;
     }
   }
 }
