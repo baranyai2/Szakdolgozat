@@ -257,7 +257,7 @@ function Line::EstimateBusesNeeded(station1, station2)
     // AILog.Info("Estimate: distance: " + distance + " acceptance: " + acceptance);
     local estimatedBuses = 2 + (acceptance/35) * (distance/35);
     if (estimatedBuses > 25) {
-        estimatedBuses = 10;
+        estimatedBuses = 25;
     }
     // AILog.Info("Needed buses: " + estimatedBuses);
     return estimatedBuses;
