@@ -1,0 +1,168 @@
+\Chapter{Tervezés}
+
+Az AI felépítésénél a fókusz egy olyan megvalósítás volt, ami egy egyszerű útvonalon lévő utasok szállításával foglalkozik a városok között, buszok használatával. Emiatt a lényegi része csak a közúti folyamatokkal foglalkozik. Másik szempontja volt a fejlesztésnek, hogy a program minél modulárisabb legyen, azaz a meglévő osztályok önállóan is tudjanak funcionálni, és a kódban máshol is újra tudjuk őket hasznosítani. Valamint minél könnyebben kiegészíthető legyen egyéb funcionalitásokkal.
+
+\Section{Osztályok}
+
+Az első feladat az különböző feladatok széttagolása. Ezt az alábbi különböző részekre osztottam:
+
+\begin{itemize}
+	\item Az AI játékmenetének a koordinálása
+	\item Felállítandó vonalak keresése
+	\item Városokon belüli tevékenységek kezelése
+	\item Útépítéssel kapcsolatos funkciók
+	\item Vonalak és azokhoz tartozó járművek kezelése
+	\item Pénzügyek kezelése
+\end{itemize}
+
+Mindezeknek a feladatoknak az ellátása több kisebb szintű problémához vezet amit megfelelően meg kell oldanunk az AI működéséhez.
+
+Ahhoz hogy az AI a célját elérje és városok között utasokat tudjon szállítani buszok segítségével szüksége van az összes többi komponens megfelelő működésére. Az AI koordinálása értjük azt a pontot ahol ez megtörténik, és a többi alrész eredménye itt összegződik és valósul meg. Itt kell kezelnünk az esetlegesen jelentkező problémákat is, ugyanis ha elkezdtünk kiépíteni egy útvonalat, de annak befejezése nem valósul meg, akkor vagy vissza kell vonnunk az addig befejezett elemeket, vagy pedig újrapróbálni a folyamatot.
+
+Az egyik ilyen fontos komponens a vonalak létrehozásának szempontjából a tervező, amely segítségével le tudjuk kérdezni hogy hova lenne érdemes új buszvonalakat létrehozni az AI-nak.
+
+Ha megkaptuk az ideális útvonalnak a helyét, akkor szükségünk van egy olyan modulra, amely képes a városon belüli tevékenységeket kezelni. Gondolok ezalatt például a buszmegállók helyének meghatározására és megépítésére.
+
+Ugyan így, ha megkaptuk a városokat amelyek között az ideális útvonalat létre kellene hoznunk, ahhoz hogy az utasokat el is tudjuk szállítani szükség lesz egy olyan modulra, amely képes a megfelelő városokat összekötni egy útvonallal költség és időhatékony módon.
+
+Az utasok szállításához végső sorban szükségünk van járművekre amelyek ezt a feladatot ellátják, így szükséges egy olyan modul is, amely az adott vonalhoz tartozó buszokat megvásárolja, irányítja, karban tartja és kezeli.
+
+A korábban felsorolt tevékenységekhez természetesen a cégnek pénzre is szüksége van, így szükséges egy olyan modul amely biztosítja a cégnek azt az összeget amit igényel a feladatok ellátására, valamint a kölcsön összegét is kezeli.
+
+
+\Section{Átfogó működés és irányítás}
+
+A programkódunk main függvényében történik meg a hívás ami elindítja az AI folyamatot a játékon belül, ezért itt röténnek meg a lényeges  részei a programnak, mint például a cég létrehozása és a fő munkafolyamat leírása. Mivel a játék célja egy infrastruktúra kiépítése és jövedelem generálása, így ezt a két dolgot itt kell megvalósítanunk. Ez az osztály szolgál az AI "agya"-ként, míg a többi osztály "kezek"-ként amik végrehajtják az utasításokat amiket az "agy"-tól kapnak.
+
+Itt kell kiadnunk tehát azokat a parancsokat, hogy új buszvonalak létrejöjjenek a térképen, ehhez lesz majd szükségünk a program összes többi elemére, amelyek ezekkel a kisebb problémakörökkel foglalkoznak. Először is fel kell mérnünk a térkép jelenlegi helyzetét, ami alapján meg tudjuk állapítani az ideális helyet a terjeszkedéshez. Miután ezt a helyet meghatároztuk, az adott városok között létre kell hoznunk az adott buszvonalat, buszmegállókat kell építenünk a városokban, össze kell kötnünk úttal a városokat, garázst kell építenünk az útvonalon, és buszokat kell vennünk a vonalra. Azokat a feladatokat amiket tudunk csoportosítani mint például a buszmegállók és buszok építése ki is emelhetjük innen és a vonalak kezeléséhez tudjuk csatolni.
+
+Amit érdemes még itt definiálnunk az a pénzügyek kezelése, mivel ez közvetlenül a céghez tartozik, így logikusabb itt kezelni őket. Szükségünk lesz egy függvényre ami megszerzi nekünk a terjeszkedéshez szükséges anyagi hátteret, valamint egy másikra ha befejeztük a munkálatokat, közben a korábban kiépített útvonalainkból termelt jövedelmből fedezzük az esetlegesen felvett kölcsön összegét.
+
+\Section{Városok keresésének módszere}
+
+Ahhoz hogy a játék elején, vagy későbbiekben is, a lehető legtöbb bevételt tudjuk generálni, fontos feladat a megfelelő városok kiválasztása az útvonal megépítéséhez. Ezt a saját stratégia implementációjaként fogjuk meghatározni. Egy felhasználó számára ésszerű döntés lehet a legnagyobb népességű városokat összekötni. Ami ténylegesen egy jó megközelítés azonban ez a következő problémákhoz vezethet. A két város túl messze van egymástól hogy az útvonal megbízható legyen. Vagyis a hosszú útvonalon a buszok eltévedhetnek, megfelelő karbantartás nélkül sorozatosan lerobbanhatnak. Ezek miatt pedig romlik az útvonal bevétele és megbízhatósága. Tehát a városok választásánál figyelembe kell vennünk azok távolságát is. Másik probléma amibe ilyenkor ütközhetünk, hogy a legnagyobb lakosságú város valójában nem az a város, ahol egy megállóval a legtöbb lakost tudjuk lefedni, legyen az egy folyó, vagy túl dombos talaj miatt. A buszmegállók elhelyezésének problémájáról későbbiekben lesz szó.
+
+Tehát a megfelelő városok kiválasztásánál két fontos tényező a városok távolsága, és az utasok száma amit a városban elhelyezett megálló szolgáltatni tud. Ennek a két változónak a segítségével tudunk felállítani egy egyenletet ami alapján minden várost értékelni tudunk a térképen, és meg tudjuk hozni a megfelelő döntést.
+
+\Section{Városkezelő}
+
+A városkezelő osztálynak a részét képezik azok a függvények amik az infrastruktúra építés szempontjából kihatnak a városokra, vagy azokról szolgálnak nekünk információval.
+
+Az egyik ilyen függvény amely meghatározza hogy egy városon belül melyik mező lenne a legalkalmasabb egy megálló építésére, ez a programban a FindStationLocation(townid), ami bemeneti értékként a vizsgálandó várost várja. Ennek a pozíciónak a kiválasztása egy fontos feladat a bevételünk növeléséhez, mivel minél több házat tudunk lefedni egy megállóval, annál több utast tudunk elszállítani onnan. A megállóknak két típusa van, az egyik az útra építhető, két végén rendelkezik ki és bejárattal, valamint egy pályaudvar szerű, aminek csak az egyik oldalon van bejárata. Az algoritmus fő célja megtalálni azt a pozíciót a városban ahol a lerakott állomás lefedettségében a várható utasok száma a legnagyobb. Ezt egy olyan városban ahol még egyáltalán nem található meg állomás viszonylag könnyű meghatározni, mert nem kell a cégek közötti vagy a saját megállóink közötti versengéssel számolni.
+
+Ahhoz hogy meghatározzuk melyik mező lenne a legalkalmasabb, először szükségünk van egy listára amely tartalmazza a város körüli mezőket, majd ezek tulajdonságai alapján tudunk döntésre jutni. Az API-nál említett AITileList egy hasznos osztály ebben az esetben, ugyanis az AddRectangle() függvényével hozzá tudjuk adni a város környezetében található mezőket, majd azokat a Valuate segítségével ki tudjuk értékelni különböző feltételekre, és az értéktől függve megtartani vagy eldobni az elemeit. Elsősorban kizárjuk a hiba lehetőségét azzal, hogy ellenőrizzük, hogy a listában található elemek mind érvényes mezők, másodkörben pedig elvetünk minden olyan mezőt ami víz mezőnek számít, legyen az foly, tó vagy a pálya szélén található tenger egy mezeje.
+Amennyiben a listában még vannak elemek, folytatjuk a szűrést olyan mezőkre, amelyek legalább egy másik olyan mezővel szomszédosak, amin út található és aztán olyanokra, amelyek nem lejtenek. Ezekre a szűrésekre két dolog miatt van szükség. Az első, hogy elkerüljük az olyan szituációkat, hogy egy 3x3-as terület közepén aminek a szélein épületek vannak, találjunk ideális megállót, azonban ahhoz hogy a megállót összekössük úttal, le kell rombolnunk az egyik épületet, ezzel rontva a szolgáltatott utasok számát a megállóban. A lejtőket pedig az állomások sajátosságba miatt kell kiszűrnünk. Ugyan az utak, a kanyarok kivételével épülhetnek lejtőkre, az útra építhető állomások nem, valamint van esélyünk arra is, hogy olyan út melletti mezőt találjuk, ami egy lejtő, és a ráépített állomás a lejtő tetején foglalna helyet, de a szomszédos út amihez csatlakoztatnunk kellene egy lejtő, vagy mélyebben helyezkedik el. (Ezt ábrával szemléltetni) Ha az adott mezőn út található, elvégzünk egy vizsgálatot ami meghatározza, hogy tudunk-e olyan megállót építeni rá, amin keresztül lehet haladni. Ezt úgy tesszük meg, hogy megvizsgáljuk a környező mezőket, és hogy azok utak-e, és csak azt a lehetőséget hagyjuk fent, amikor csak az állomás két végén található mező út, ugyanis kanyarra, vagy T vagy X kereszteződésre nincs lehetőség ilyen típusú állomás építésére.
+
+A szűrések elvégzése után már csak olyan mezők maradtak amire tudnánk megállót építeni, már csak az maradt hátra hogy meghatározzuk, hogy ezek közül melyikre lenne a legérdemesebb. Ennek az elősegítésére létezik az API-ban az AITile.GetCargoAcceptance() függvény, amelynek paraméterként meg kell adjuk a mezőt amelyen az állomást építeni szeretnénk, az árú típusát, ami jelen esetben az utasok, valamint a megálló dimenziót, és a kerületet, amit lefed a buszmegálló. Ezzel a függvénnyel azonban egy problémába ütközünk, amit az API nem is közöl velünk. Ez a függvény mindig a maximális értéket adja vissza a lefedett területről, azaz, nem veszi figyelembe a más cégek, vagy a saját buszmegállóink lefedettségének ütközését, ahol a töbszörösen lefedett területekről szolgáltatott utasok arányosan oszlanak el a megállók között.
+
+Ezért volt szükséges egy saját függvény létrehozása, ami pontosabban tudja megbecsülni az buszmegálló által lefedett utasok számát. Így lett létrehozva a GetStationAcceptance(tile), amely bemeneti értékként azt a mezőt várja, ahova a buszmegállót építeni szeretnénk.
+
+Ez a függvény először lekérdezi az adott mező körülötti területet amit szükséges megvizsgálnia annak érdekében hogy van e átfedés a megállók között. Mivel a buszmegállók csak egy mezőt foglalnak el, és 7x7-es területet fednek le, ahol a terület közepén helyezkedik el az állomás, így az a terület amit vizsgálnunk kell az a megálló körül vett, legalább 6 sugarú terület, ugyanis, ha még az állomástól számított 6. mezőn van egy állomás, akkor legalább egy oszlopban átfedés lesz, azonban ha már a 7. van azt nem érdemes vizsgálnunk, mivel pont szomszédeos mezőket fednek csak le. (Az állomások lefedettségéről is ábra) Abban az esetben, ha nem találunk másik állomást a vizsgált területen belül, egyszerű dolgunk van, mivel tudjuk használni az API által szolgáltatott függvényt. Amennyiben találunk állomást, a megoldás kicsit bonyolultabb lesz. Először is létrehozunk egy listát amiben eltároljuk az általunk lerakandó megálló által lefedett mezőket és minden mező értékét 1-re állítjuk, aztán egy segédlistában pedig eltároljuk azokat a mezőket, amelyek egy adott már meglévő megálló által le vannak fedve. Végigiterálva az általunk lerakandó állomás által lefedett mezőkön, összehasonlitjuk, hogy az adott mező szerepel-e a segédlistánkban. Amennyiben igen, a List() értékmezőjében lévő értéket növeljük egyel. Ha végigiteráltunk az összes elemen és összes megállón, akkor a lista segítségével ki tudjuk számítani a valódi utasok számát. Lekérdezzük a GetCargoAcceptance() segítségével minden egyes mezőre jutó utasszámot amit elosztunk az adott elem értékével, ami 1, ha nem volt átfedés más állomással, így az értékünk teljes marad, azonban ha volt átfedés, a kapott eredmény annyiad részét fogjuk venni, ahány megállóval van átfedésben a mező. Végül pedig visszaadjuk a kapott értékek összegét.
+
+Ha a FindStationLocation()-ben megkapott mezőkre meghívjuk a GetStationAcceptance függvényünket, és a kapott értékeket lementjük a lista részeként, egy egyszerű Sort() segítségével csökkenő sorrendbe is tujunk rendezni, és az így kapott lista első eleme lesz a legtöbb várható utassal rendelkező állomás pozíciója.
+
+A városkezelő utolsó függvénye a buszmegálló építő BuildStation(tile, townid). Ennek meghíváskor átadjuk a mezőt ahova az állomást szeretnénk építeni, valamint a várost ahova építjük. Az utóbbira azért lesz szükségünk, hogyha menetközbe megszakadt volna az útvonal a megálló és a város között, akkor össze tudjuk kötni őket úttal. Itt már csak azt kell meghatároznunk, hogy az adott mező amire építeni szeretnénk a megállót út-e vagy sem, és a mezőre tudunk-e építkezni vagy sem. Az első vizsgálatra a megálló típusának kiválasztása maitt van szükség, ha az adott mező út el kell döntenünk, hogy az építendő megálló fentről lefelé, vagy balról jobbra vezető megálló lesz. Ha a mező nem út, akkor azt kell eldüntenünk, hogy a szomszédos mezők közül melyik az, hogy hozzá tudjuk kötni a megállónkat az úthálózathoz. Az utóbbira pedig akkor, ha a mező nem egy út, de a mezőn valami megakadályozza hogy oda építkezzünk. Abban az esetben, ha valami akadályozza az építkezést, a mezőt leromboljuk és úgy próbálkozunk megépíteni a megállót. Ha a megálló sikeresen megépült, akkor a biztonság kedvéért összekötjük a megálló előtti mezőt a város központjával. Amennyiben a két mező között már volt úthálózat, nem történik építkezés.
+
+\Section{Építkező}
+
+Ez az osztály tartalmazza az útvonalkereső függvényt, ami valójában a keretrendszer részeként szolgáltatott útvonalkereső egy implementációja. Valamint megtalálható még egy segédfüggvény, amivel egy adott mező szomszédos mezőit tudjuk lekérdezni, ami sok építkezésnél hasznos számunkra.
+
+Az útvonalkeresőről a játék weboldalán találhatunk részletes leírást, valamint segédletet az implementációhoz. Valójában az AI-ban található implementáció is a weboldalon megtalálható egy minimális átformálása. Ennek a függvénynek csak két mező típusú objektumot kell megadnunk, ami alapján az algoritmus a megadott paraméterek alapján összeköti ezeket és visszaadja az útvonalat egy path objektum formájában. Ha ezt az útvonalat megkaptuk, már csak az útvonal mezőire kell útat építenünk, és van is egy működő algoritmusunk két pont összekötésére.
+
+Az útvonalkereső algoritmus valójában egy A* algoritmus alapvető implementációja. Ez határozza meg a paraméterek szerinti "legolcsóbb" útvonalat. Példa az átállítható paraméterekre például a kanyarok költsége, alagutak vagy hidak használatának költsége, lejtők használatának költsége.
+
+\Section{Útvonalkezelő}
+
+Az útvonalak kezeléséhez szükségünk van egy osztályra, amelynek a példányaiban lehetőség van eltárolna az összes adott vonalhoz tartozó információt, ide értve a városokat amik között a vonal fut, a buszmegállók és garázs pozícióját a térképen és a vonalhoz tartozó buszok listáját, ide értve a meglévő, és a vásárlásra várakozó buszokat is. A programban ez az osztály felelős az egyes útvonalak felállításáért, ide értve a hozzá tartozó infrastruktúra felépítését és a elemeinek kezelését is. Az infrastruktúra felépítéséhez szükséges feladatokat ellátó függvényekről már korábban esett szó. Itt a CreateNewLine(townpair) függvény foglalja össze ezeket.
+
+Ennek a függvénynek kell megkapnia az összeköttendő városokat, ami alapján meghívja a többi szükséges osztályt a buszmegállók helyeinek meghatározására és megépítésére. Amennyiben minden építkezés sikeresen lezajlott az osztály töbi függvényye megépíti és lementi az útvonalhoz kapcsolt garázst majd megvásárolja a szükséges mennyiségű járművet. Ezután pedig kiadja a megfelelő utasításokat a buszoknak, hogy melyik megállóba kell eljutniuk, aztán elindítja őket. Ez a folyamat is több kisebb problémához vezet amikkel külön kell foglalkoznunk.
+
+Ahhoz hogy buszokat tudjunk vásárolni először is egy garázsra van szükségünk, ahol ezeket a buszokat el tudjuk tárolni és a későbbiekben karbantartani, vagy elöregedésük után eladni. Ennek a garázsnak a poziciójának a meghatározása hasonlkó folyamat az megállók helyének meghatározásával, leszámítva a lefedett területek bonyolultságát. Erre készítünk egy függvényt AddDepot(tile) néven, aminek megadjuk a városhoz tartozó megálló pozícióját. Aztán veszünk a megálló körüli területet egy sugárral, és megvizsgáljuk hogy a városban építettünk-e már korábban garázst, ugyanis ha igen ezt érdemes újrahasználni, mivel a megállókkal ellentétben ennek nincs negatív hatása az utasokra, azonban megspóroljuk egy felesleges garázs fenntartási költségeit.
+
+Abban az esetben ha még nincs garázs a körzetben, veszünk minden olyan mezőt egy körzetben ami nem lejt, út mellett helyezkedik el és önmaga nem út. A megmaradt mezők közül kiválasztjuk azt, amelyik a legközelebb van a vonalhoz tartozó másik városhoz. Erre nem feltétlen lenne szükség, de így nagyobb valószínüséggel helyezzük el a garázst olyan pozícióba, ami olyan úttal szomszédos amin a két megálló között közlekedve elhaladnak a járműveink. Ha találtunk alkalmas mezőt a garázsnak, megvizsgáljuk tudunk-e építkezni a mezőre, és ha igen elhelyezzük a garázst.
+
+A garázs meglétével már lehetőségünk van új járművek vásárlására. Mielőtt költekezésbe kezdenénk, érdemes kiszámítani egy közelítő értéket, hogy hány buszra lesz szükségünk, hogy a várható utasmennyiséget le tudjuk fedni a vonalon. Ebből a célből létrehozunk egy EstimateBusesNeeded(station1, station2) függvényt. Ez egy egyszerű egyenlet segítségével készít egy becslést a szükséges buszok számáról. Az alap érték legalább 2, mivel szeretnénk, hogy legalább mindkét megállóban legyen egyszerre busz és ezek forogjanak a megállók között.
+A számításnál figyelembe vesszük még a vonal állomásai által lefedett várható utasok számát, az állomások egymástól vett távolságát és a buszok férőhelyeit. A visszaadott érték a becsülten szükséges buszok száma.
+
+
+
+
+
+\Section{}
+
+Itt kezdődik a dolgozat lényegi része, úgy értve, hogy a saját munka bemutatása.
+Jellemzően ebben szerepelni szoktak blokkdiagramok, a program struktúrájával foglalkozó leírások.
+Ehhez célszerű UML ábrákat (például osztály- és szekvenciadiagramokat) használni.
+
+Amennyiben a dolgozat inkább kutatás jellegű, úgy itt lehet konkretizálni a kutatási módszertant, a kutatás tervezett lépéseit, az indoklást, hogy mit, miért és miért pont úgy érdemes csinálni, ahogyan az a későbbiekben majd részletezésre kerül.
+
+Ebben a fejezetben az implementáció nem kell, hogy túl nagy szerepet kapjon.
+Ez még csak a tervezési fázis.
+(Nyilván ha olyan a téma, hogy magának az implementációnak a módjával foglalkozik, adott formális nyelvet mutat be, úgy a kódpéldákat már innen sem lehet kihagyni.)
+
+\Section{Táblázatok}
+
+Táblázatokhoz a \texttt{table} környezetet ajánlott használni.
+Erre egy minta \aref{tab:minta}. táblázat.
+A hivatkozáshoz az egyedi \texttt{label} értéke konvenció szerint \texttt{tab:} prefixszel kezdődik.
+
+\begin{table}[h]
+\centering
+\caption{Minta táblázat. A táblázat felirata a táblázat felett kell legyen!}
+\label{tab:minta}
+\begin{tabular}{l|c|c|}
+a & b & c \\
+\hline
+1 & 2 & 3 \\
+4 & 5 & 6 \\
+\hline
+\end{tabular}
+\end{table}
+
+\Section{Ábrák}
+
+Ábrákat a \texttt{figure} környezettel lehet használni.
+A használatára egy példa \aref{fig:cimer}. ábrán látható.
+Az \texttt{includegraphics} parancsba 
+Az ábrák felirata az ábra alatt kell legyen.
+Az ábrák hivatkozásához használt nevet konvenció szerint \texttt{fig:}-el célszerű kezdeni.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.3]{images/me_logo.png}
+\caption{A Miskolci Egyetem címere.}
+\label{fig:cimer}
+\end{figure}
+
+\Section{További környezetek}
+
+A matematikai témájú dolgozatokban szükség lehet tételek és bizonyításaik megadására.
+Ehhez szintén vannak készen elérhető környezetek.
+
+\begin{definition}
+Ez egy definíció
+\end{definition}
+
+\begin{lemma}
+Ez egy lemma
+\end{lemma}
+
+\begin{theorem}
+Ez egy tétel
+\end{theorem}
+
+\begin{proof}
+Ez egy bizonyítás
+\end{proof}
+
+\begin{corollary}
+Ez egy tétel
+\end{corollary}
+
+\begin{remark}
+Ez egy megjegyzés
+\end{remark}
+
+\begin{example}
+Ez egy példa
+\end{example}
