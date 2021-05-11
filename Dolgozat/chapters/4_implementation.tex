@@ -51,7 +51,64 @@ Ahhoz hogy a játék elején, vagy későbbiekben is, a lehető legtöbb bevéte
 
 A városok közötti távolságot méréséhez manhattan távolságot használtam, mivel az elszállítási díj is ezt a távolságot veszi figyelembe. Ilyenkor az API AIMap osztályának DistanceManhattan(tile1,tile2) függvényét segítségül hívva tudtam ezeket az információkat megszerezni. Ahogyan azt az előző bekezdésben megállapítottam, a távolság akkor is hátrányos ha túl alacsony, valamint akkor is, ha túl magas. Ezért feltételezhető, hogy a minimum és maximum érték között található egy olyan távolság, ami az utasok elszállítása szempontjából ideális. Ahhoz, hogy ezt az értéket közelíteni tudjuk, létrehoztam egy algoritmust, aminek a paramétereinek az állításával a későbbiekben kísérleteket tudok tenni, hogy melyik beállítás lenne a legmegfelelőbb. Feltételezzük, hogy a kapott szám a [0,1] intervallumon helyezkedik el.
 
+\begin{cpp}
+function Planner::DistanceMeasure(town1, town2)
+{
+  local distance = AIMap.DistanceManhattan(AITown.GetLocation(town1),
+    AITown.GetLocation(town2)).tofloat();
+  local dstar = 50.0;
+  local dmin = 30.0;
+  local dmax = 100.0;
+  if (distance < dmin) {
+    return 0.0;
+  }
+  if (distance < dstar) {
+    local result = (distance - dmin) / (dstar - dmin);
+    return result;
+  }
+  if (distance == dstar) {
+    return 1.0;
+  }
+  if (distance <= dmax) {
+    local result = 1 - ((distance - dstar) / (dmax - dstar));
+    return result;
+  }
+  if (distance > dmax) {
+    return 0.0;
+  }
+}
+\end{cpp}
+
+A számítások elvégzése előtt, segédváltozókban megadom, az algoritmus fixált értékeit, valamint kiszámítom a korábban említett módon a városok távolságát. Ez algoritmus által kiszámított eredmény annál nagyobb lesz, minél közelebb van, az általunk ideálisnak tartott távolságtól.
+
 Másik probléma amibe a fejlesztés alatt ütköztem, hogy a legnagyobb lakosságú város valójában nem az a város, ahol egy megállóval a legtöbb lakost tudja lefedni a program, legyen az egy folyó, vagy túl dombos talaj miatt. A buszmegállók elhelyezéséről és az várható utasok számának becsléséről a későbbiekben részletesen lesz szó. A városok kiválasztásához jelen esetben csak a várható utasok számának becsült értékére van szükség. A térképen található minden város kombinációinak az eleméhez hozzárendeltem az adott városokban a legjobb buszmegállók pozícióinak várható utasszámának összegét. Ezt az értéket normalizáltan a [0,1] intervallumra, azáltal hogy az adott értéket elosztottam a várospárok közötti maximális értékkel.
+
+Kódrészlet a városok várható utasok számának kiszámításáról és lementéséről:
+\begin{cpp}
+
+class Planner {
+  town_list = null;
+  // Egyeb kod
+}
+
+function Planner::BuildTownList()
+{
+  local manager = TownManager();
+  this.town_list = AITownList();
+  for (local i = town_list.Begin(); 
+   town_list.HasNext(); i = town_list.Next()) {
+    local loc = manager.FindStationLocation(i);
+    if (loc != false) {
+      town_list.SetValue(i, manager.GetStationAcceptance(loc));
+    } else {
+      town_list.SetValue(i, 0);
+    }
+  }
+  town_list.Sort(AIList.SORT_BY_VALUE, AIList.SORT_DESCENDING);
+}
+\end{cpp}
+
+Ezt a listát újragenerálja a program, minden alkalommal amikor ideális városokat keres az AI folyamata, ezzel garantálva, hogy a legutóbbi számítások óta történt pályaváltozások miatt ne hibás értékek alapján hozzon döntést. A kódrészletben jól látható, hogy hogyan lehet hasznosítani az API List() osztályát értékek rendezésére. Először minden város elemhez hozzárendelek egy adott értéket, majd egyszerűen a Sort() függvény segítségével sorba lehet rendezni ezeket. Ezekből az adatokból a továbbiakban felépítettem egy háromszögmátrixot, melynek adatai az adott várospárok várható utasszámának értékei. Ennek a kódja itt látható:
 
 Tehát a megfelelő városok kiválasztásánál két fontos tényező a városok távolsága, és az utasok száma amit a városban elhelyezett megálló szolgáltatni tud. Ennek a két változónak a segítségével tudtam felállítani egy egyenletet ami alapján minden várospárt értékelni tud a program a térképen, aztán az egyenlet eredménye szerint eldönteni, hogy melyik az ideális várospár új buszvonal megépítésére. Ehhez az egyenlethez hozzáadtam egy súlyváltozót is, amivel azt tudom befolyásolni, hogy a távolság, vagy az utasok számának hányadosát szeretném inkább figyelembe venni.
 
@@ -62,6 +119,23 @@ Az így kapott egyenletünk a következő:
 	$ e(i,j)=w_{a} \cdot a(i,j)+(1-w_{a}) \cdot f(d(i,j)) $
 \end{center}
 
+Ezt az egyenletet a korábban kiszámított változók segítségével implementáltam, és az eredményt egy tömbben tároltam, a várospár elemeivel és a hozzájuk tartozó e értékkel.
+
+\begin{cpp}
+local n = 0;
+for (local i = 0; i < townArray.len(); i++) {
+  for (local j = i + 1; j < townArray.len(); j++) {
+    local d = DistanceMeasure(townArray[i][0], townArray[j][0]);
+    local maxacc = GetMaxAcceptance().tofloat();
+    local e = (w * ((townArray[i][1] + townArray[j][1]) / maxacc))
+      + ((1.0 - w) * d);
+    towneArray[n] = [townArray[i][0], townArray[j][0], e];
+    n++;
+  }
+}
+\end{cpp}
+
+Itt látható, hogy minden várospárra elvégződik a számítás, meghívódik a bemutatott távolságfüggvény, ami az egyenletben $f(d(i,j))$ képpen szerepelt. A GetMaxAcceptance() függvény egy egy segédváltozót határoz meg amire a várható utasok számának normalizálása miatt van szükség, ez az érték a maximuma lesz a várospárok között lévő várható utasoknak. Az eredményül kapott towneArray minden eleme tehát egy várospár, és a hozzá tartozó $e$ érték. Ennek a tömbnek az egyszerű buborékrendezése után, kaptam egy rendezett listát a terjeszkedésre ideális városokról.
 
 Az egyenlet paramétereinek változtatásáról, és annak az eredményeiről a tesztelés fejezetben lesz részletesebben szó.
 
@@ -69,10 +143,25 @@ Az egyenlet paramétereinek változtatásáról, és annak az eredményeiről a 
 
 A városkezelő osztálynak a részét képezik azok a függvények amik az infrastruktúra építés szempontjából kihatnak a városokra, vagy azokról szolgálnak információval.
 
-Az egyik ilyen függvény amely meghatározza hogy egy városon belül melyik mező lenne a legalkalmasabb egy megálló építésére, ez a programban a FindStationLocation(townid), ami bemeneti értékként a vizsgálandó várost várja. Ennek a pozíciónak a kiválasztása egy fontos feladat a cég bevételének növeléséhez, mivel minél több házat tud a program lefedni egy megállóval, annál több utast képes elszállítani onnan. A megállóknak két típusa van, az egyik az útra építhető, két végén rendelkezik ki és bejárattal, valamint egy pályaudvar szerű, aminek csak az egyik oldalon van bejárata. Az algoritmus fő célja megtalálni azt a pozíciót a városban ahol a lerakott állomás lefedettségében a várható utasok száma a legnagyobb. Ezt egy olyan városban ahol még egyáltalán nem található meg állomás viszonylag könnyű meghatározni, mert nem kell a cégek közötti vagy a saját megállók közötti versengéssel számolni.
+Az egyik ilyen függvény amely meghatározza hogy egy városon belül melyik mező lenne a legalkalmasabb egy megálló építésére, ez a programban a FindStationLocation(townid), ami bemeneti értékként a vizsgálandó várost várja. Ennek a pozíciónak a kiválasztása egy fontos feladat a cég bevételének növeléséhez, mivel minél több házat tud a program lefedni egy megállóval, annál több utast képes elszállítani onnan. A megállóknak két típusa van, az egyik az útra építhető, két végén rendelkezik ki és bejárattal, valamint egy pályaudvar szerű, aminek csak az egyik oldalon van bejárata. Az algoritmus fő célja megtalálni azt a pozíciót a városban ahol a lerakott állomás lefedettségében\ref{fig:megallo} a várható utasok száma a legnagyobb. Ezt egy olyan városban ahol még egyáltalán nem található meg állomás viszonylag könnyű meghatározni, mert nem kell a cégek közötti vagy a saját megállók közötti versengéssel számolni.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.8]{images/megallo.png}
+	\caption{Buszmegállók típusai, pályaudvar (narancs), megálló (rózsaszín). Buszmegálló által lefedett terület, lila körvonal}
+	\label{fig:megallo}
+\end{figure}
 
 Ahhoz hogy meghatározzam melyik mező lenne a legalkalmasabb, először szükségem volt egy listára amely tartalmazza a város körüli mezőket, majd ezek tulajdonságai alapján tud a program döntésre jutni. Az API-nál említett AITileList egy hasznos osztály ebben az esetben, ugyanis az AddRectangle() függvényével hozzá tudtam adni a város környezetében található mezőket, majd azokat a Valuate segítségével hozzá tudtam rendelni értékeket különböző feltételek alapján, és az értéktől függve megtartani vagy eldobni az elemeit. Elsősorban kizártam a hiba lehetőségét azzal, hogy ellenőriztem a listában található elemek mind érvényes mezők-e, másodkörben pedig elvetettem minden olyan mezőt ami víz mezőnek számít, legyen az folyó, tó vagy a pálya szélén található tenger egy mezeje.
-Amennyiben a listában még vannak elemek, a program folytatja a szűrést olyan mezőkre, amelyek legalább egy másik olyan mezővel szomszédosak, amin út található és aztán olyanokra, amelyek nem lejtenek. Ezekre a szűrésekre két dolog miatt van szükség. Az első, hogy elkerüljük az olyan szituációkat, hogy egy 3x3-as terület közepén aminek a szélein épületek vannak, találjunk ideális megállót, azonban ahhoz hogy a megállót összekössük úttal, le kell rombolnunk az egyik épületet, ezzel rontva a szolgáltatott utasok számát a megállóban. A lejtőket pedig az állomások sajátosságba miatt kell kiszűrni. Ugyan az utak, a kanyarok kivételével épülhetnek lejtőkre, az útra építhető állomások nem, valamint van esély arra is, hogy olyan út melletti mezőt találjon a program, ami egy lejtő, és a ráépített állomás a lejtő tetején foglalna helyet, de a szomszédos út amihez csatlakoztatnunk kellene egy lejtő, vagy mélyebben helyezkedik el. (Ezt ábrával szemléltetni) Ha az adott mezőn út található, elvégez egy vizsgálatot a program ami meghatározza, hogy tud-e olyan megállót építeni rá, amin keresztül lehet haladni. Ezt az alapján teszi meg, hogy megvizsgálja a környező mezőket, és hogy azok utak-e, és csak azt a lehetőséget hagyja fent, amikor csak az állomás két végén található mező út, ugyanis kanyarra, vagy T vagy X kereszteződésre nincs lehetőség ilyen típusú állomás építésére.
+
+Amennyiben a listában még vannak elemek, a program folytatja a szűrést olyan mezőkre, amelyek legalább egy másik olyan mezővel szomszédosak, amin út található és aztán olyanokra, amelyek nem lejtenek. Ezekre a szűrésekre két dolog miatt van szükség. Az első, hogy elkerüljük az olyan szituációkat, hogy egy 3x3-as terület közepén aminek a szélein épületek vannak, találjunk ideális megállót, azonban ahhoz hogy a megállót összekössük úttal, le kell rombolnunk az egyik épületet, ezzel rontva a szolgáltatott utasok számát a megállóban. A lejtőket pedig az állomások sajátosságba miatt kell kiszűrni. Ugyan az utak, a kanyarok kivételével épülhetnek lejtőkre, az útra építhető állomások nem, valamint van esély arra is, hogy olyan út melletti mezőt találjon a program, ami egy lejtő, és a ráépített állomás a lejtő tetején foglalna helyet. Azonban ha a szomszédos út amihez csatlakoztatnunk kellene egy lejtő, vagy mélyebben helyezkedik el nem tudjuk összekötni a megállót az úthálózattal\ref{fig:lejtomegallo}. Ha az adott mezőn út található, elvégez egy vizsgálatot a program ami meghatározza, hogy tud-e olyan megállót építeni rá, amin keresztül lehet haladni. Ezt az alapján teszi meg, hogy megvizsgálja a környező mezőket, és hogy azok utak-e, és csak azt a lehetőséget hagyja fent, amikor csak az állomás két végén található mező út, ugyanis kanyarra, vagy T vagy X kereszteződésre nincs lehetőség ilyen típusú állomás építésére.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.8]{images/lejtomegallo.png}
+	\caption{Buszmegálló út mellett, de lejtőn, a megálló nem csatlakozik az úthálózathoz.}
+	\label{fig:lejtomegallo}
+\end{figure}
 
 A szűrések elvégzése után már csak olyan mezők maradtak amire a program tud megállót építeni, már csak az maradt hátra hogy meghatározza, hogy ezek közül melyikre lenne a legérdemesebb. Ennek az elősegítésére létezik az API-ban az AITile.GetCargoAcceptance() függvény, amelynek paraméterként átadom a mezőt amelyen az állomást építeni szeretném, az árú típusát, ami jelen esetben az utasok, valamint a megálló dimenziót, és a sugarat, amekkora területet lefed a buszmegálló. Ezzel a függvénnyel azonban egy problémába ütköztem, amit az API nem is közöl velünk. Ez a függvény mindig a maximális értéket adja vissza a lefedett területről, azaz, nem veszi figyelembe a más cégek, vagy a saját buszmegállóink lefedettségének ütközését, ahol a többszörösen lefedett területekről szolgáltatott utasok arányosan oszlanak el a megállók között.
 
