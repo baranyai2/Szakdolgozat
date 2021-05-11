@@ -94,9 +94,9 @@ function Planner::FindTownsToBuild()
         }
     }
 
-    for (local l = 0; l < n; l++) {
-        AILog.Info(l+1 + " " + towneArray[l][2].tostring());
-    }
+    // for (local l = 0; l < n; l++) {
+    //     AILog.Info(l+1 + " " + towneArray[l][2].tostring());
+    // }
     local tmp;
     for (local i = n-1; i > 0; i--) {
         for (local j = 0; j < i; j++) {

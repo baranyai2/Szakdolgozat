@@ -1,106 +1,202 @@
-\Chapter{Tervezés}
+\Chapter{Fejlesztői környezet}
 
-Az AI felépítésénél a fókusz egy olyan megvalósítás volt, ami egy egyszerű útvonalon lévő utasok szállításával foglalkozik a városok között, buszok használatával. Emiatt a lényegi része csak a közúti folyamatokkal foglalkozik. Másik szempontja volt a fejlesztésnek, hogy a program minél modulárisabb legyen, azaz a meglévő osztályok önállóan is tudjanak funkcionálni, és a kódban máshol is újra tudjuk őket hasznosítani. Valamint minél könnyebben kiegészíthető legyen egyéb funkcionalitásokkal.
+Az OpenTTD már a kezdetlegi fázisaitól lehetővé tette azt, hogy a felhasználók saját AI-t fejleszthessen a játékhoz. Ennek a helyzetnek az előteremtésére a játék fejlesztői csapata létrehoztak egy API-t amit a Squirrel nyelv használatával elérést ad a játék back end-jéhez. Mivel a játék forrása tartalmaz egy fordítót, így a felhasználónak csak egy szövegszerkesztőre van szüksége az AI megteremtéséhez.
 
-\Section{Osztályok}
 
-Az első feladat az különböző feladatok széttagolása. Ezt az alábbi különböző részekre osztottam:
+
+\Section{Squirrel}
+
+Az OpenTTD-hez készült kiegészítő szkriptek, AI-ok, módosítások nyelve a Squirrel. A Squirrel egy egyszerű szkriptnyelv aminek a szintaktikája sokban hasonlít a C++-ra. Legfőképpen két oka volt annak, hogy ezt a nyelvet választották. Elsősorban, sokban hasonlít a C++-ra, ami a fő nyelve a játék teljes forráskódjának. Másodsorban pedig, a Squirrel egy magas szintű,  imperatív, objektum orientált programozási nyelv, ami olyan célokkal lett megalkotva mint, egyszerű szkriptelés, alacsony memória használat és képesség a valós idejű programokkal való működésre, mint amilyenek a játékok is.
+
+Ahogy korábban ez említve volt, a szintaktika főképpen C++-ra vagy C/Java-ra hasonlít, azonban a teljesítménye és és implementációja inkább tükrözi a Python-t, JavaScript-et és Lua-t. A Lua több helyen is használt program, mint például az Adobe Photoshop Lightroom, MySQL Workbench, VLC media player és még sok más. Játékokban való alkalmazására példa a Far Cry és a Civilization V.
+
+A Lua-hoz képest a Squirrel kevésbé elterjedt nyelv, és kevesebb eredményt is tud felmutatni, azonban néhány példa a használatára ismertebb játékokban például Left 4 Dead 2, Portal 2, GTA IV Multiplayer Mod és Counter Strike: Global Offensive.
+
+A Squirrel főbb tulajdonságai:
 
 \begin{itemize}
-	\item Az AI játékmenetének a koordinálása
-	\item Felállítandó vonalak keresése
-	\item Városokon belüli tevékenységek kezelése
-	\item Útépítéssel kapcsolatos funkciók
-	\item Vonalak és azokhoz tartozó járművek kezelése
-	\item Pénzügyek kezelése
+	\item delegáció
+	\item osztályok és öröklődés
+	\item magasabb rendű függvények
+	\item érvényességi terület (scope)
+	\item generátorok
+	\item kivételkezelés
+	\item rekurzió
+	\item automata memória kezelés
 \end{itemize}
 
-Mindezeknek a feladatoknak az ellátása több kisebb szintű problémához vezet amit megfelelően meg kell oldanunk az AI működéséhez.
+Példa Sqirrel kódra:
 
-Ahhoz hogy az AI a célját elérje és városok között utasokat tudjon szállítani buszok segítségével szüksége van az összes többi komponens megfelelő működésére. Az AI koordinálása értjük azt a pontot ahol ez megtörténik, és a többi alrész eredménye itt összegződik és valósul meg. Itt kell kezelnünk az esetlegesen jelentkező problémákat is, ugyanis ha elkezdtünk kiépíteni egy útvonalat, de annak befejezése nem valósul meg, akkor vagy vissza kell vonnunk az addig befejezett elemeket, vagy pedig újrapróbálni a folyamatot.
+\begin{cpp}
+class Osztaly
+{	
+	constructor(valt1,valt2)
+	{
+		// Konstruktor kodja
+	}
+		
+	local szoveg = "Ez egy szoveg"; //valtozo definicio
+	local szam = 10;
+	local tomb = [0, "szoveg", [2.0, "tomb"]];
+}
+// Sajat fuggveny definicio
+function Osztaly::areaOfCircle(radius) {
+	return (PI * radius * radius);
+}
+// Fuggvenyhivas
+local terulet = areaOfCircle(10);	
+\end{cpp}
 
-Az egyik ilyen fontos komponens a vonalak létrehozásának szempontjából a tervező, amely segítségével le tudjuk kérdezni hogy hova lenne érdemes új buszvonalakat létrehozni az AI-nak.
+A Squirrel egy típuskötetlen nyelv, ami azt jelenti, hogy a változók definiálásakor nem kell megadnunk az adott változó típusát, hanem a fordító azt automatikusan észleli és hozzárendeli. Ahogyan a példában is látható, változót a "local" szóval tudunk létrehozni. A változóknak nem szükséges memóriát allokálni, ezt a beépített memóriakezelő alapból elvégzi helyettünk, valamint a deallokációt is.
 
-Ha megkaptuk az ideális útvonalnak a helyét, akkor szükségünk van egy olyan modulra, amely képes a városon belüli tevékenységeket kezelni. Gondolok ezalatt például a buszmegállók helyének meghatározására és megépítésére.
+A korábban felsorolt funkciói miatt a Squirrel egy nagyon rugalmas és egyszerűen implementálható eszköz, ami tökéletes egy játékhoz való API elkészítéséhez. További előnyök ami miatt az OpenTTD fejszeltői a Squirrel mellett döntöttek a C++ helyett az AI támogatáshoz:
 
-Ugyan így, ha megkaptuk a városokat amelyek között az ideális útvonalat létre kellene hoznunk, ahhoz hogy az utasokat el is tudjuk szállítani szükség lesz egy olyan modulra, amely képes a megfelelő városokat összekötni egy útvonallal költség és idő hatékony módon.
+\begin{itemize}
+	\item Beépített multi-platform támogatás
+	\item A C++-ban írt AI-ok teszteléséhez az egész játék kódjának az újbóli összeállítására lett volna szükség
+	\item C++-ban a hibák az egész játék összeomlásához vezetnek, de Squirrel-ben a hibák a játékban futtatott virtuális gépen belül maradnak, ami legrosszabb esetben is csak az AI leállásához vezethet
+\end{itemize}
 
-Az utasok szállításához végső sorban szükségünk van járművekre amelyek ezt a feladatot ellátják, így szükséges egy olyan modul is, amely az adott vonalhoz tartozó buszokat megvásárolja, irányítja, karban tartja és kezeli.
+Érdemes megemlíteni, hogy a C++-hoz képest a Squirrel sebessége rosszabb, azonban ebben az alkalmazás módban kevésbé észrevehető. A legfőbb ok amiért a játék szempontjából hasznos a Squirrel használata az a biztonság és a hordozhatóság. Mindez ahhoz vezetett, hogy a játékhoz készült NoAI Keretrendszer, amiről a későbbiekben részletesen is beszélünk, is a Squirrel nyelvben lett megírva, ami támogatja az AI-ok működését.
 
-A korábban felsorolt tevékenységekhez természetesen a cégnek pénzre is szüksége van, így szükséges egy olyan modul amely biztosítja a cégnek azt az összeget amit igényel a feladatok ellátására, valamint a kölcsön összegét is kezeli.
+Ahhoz hogy Squirrel programot készítsünk, csak a Squirrel-re, és egy szövegszerkesztőre van szükségünk. Az előbbi a Squirrel weboldaláról letölthető. Az utóbbi pedig bármilyen fejlesztői környezet, vagy egyszerű szövegszerkesztő lehet. Az AI fejlesztése alatt a Visual Studio Code-ot használtam Squirrel Language Supports kiegészítővel, ami hozzáad szövegkiemelést, néhány alapvető automata kitöltést és formázási lehetőségeket.
 
 
-\Section{Átfogó működés és irányítás}
+\Section{NoAI Keretrendszer}
 
-A programkódunk main függvényében történik meg a hívás ami elindítja az AI folyamatot a játékon belül, ezért itt röténnek meg a lényeges  részei a programnak, mint például a cég létrehozása és a fő munkafolyamat leírása. Mivel a játék célja egy infrastruktúra kiépítése és jövedelem generálása, így ezt a két dolgot itt kell megvalósítanunk. Ez az osztály szolgál az AI "agya"-ként, míg a többi osztály "kezek"-ként amik végrehajtják az utasításokat amiket az "agy"-tól kapnak.
+A korábban fejlesztett és jelenleg támogatott AI-ok mind a NoAI Framework nevű keretrendszerre épülnek. Egy másik lehetőség lenne egy AI megvalósítására a játékon belül a játék forráskódjának szerkesztése és annak újrafordítása, azonban a keretrendszer által adott egyszerűsítések jelentősen a háttérbe szorítják ezt az opciót, amellett hogy ez sokkal bonyolultabbá tenné az AI implementálását, az elérhetőségét is korlátozná.
 
-Itt kell kiadnunk tehát azokat a parancsokat, hogy új buszvonalak létrejöjjenek a térképen, ehhez lesz majd szükségünk a program összes többi elemére, amelyek ezekkel a kisebb problémakörökkel foglalkoznak. Először is fel kell mérnünk a térkép jelenlegi helyzetét, ami alapján meg tudjuk állapítani az ideális helyet a terjeszkedéshez. Miután ezt a helyet meghatároztuk, az adott városok között létre kell hoznunk az adott buszvonalat, buszmegállókat kell építenünk a városokban, össze kell kötnünk úttal a városokat, garázst kell építenünk az útvonalon, és buszokat kell vennünk a vonalra. Azokat a feladatokat amiket tudunk csoportosítani mint például a buszmegállók és buszok építése ki is emelhetjük innen és a vonalak kezeléséhez tudjuk csatolni.
+Ahogyan az korábban említve volt, az OpenTTD játék forráskódja nyílt, és a hozzá tartozó, felhasználók által készített szkriptek nagyrésze is az. A legtöbb az Általános Nyilvános Licenc (GNU) 2.0-ás vagy 3.0 változata alatt érhetőek el. Emiatt a fejlesztés megkezdése előtt két lehetőségünk van, az egyik egy AI megvalósítása teljesen a semmiből, vagy pedig egy már létező AI kódjának az átformázása a mi céljainkra, vagy esetleg már létező kódrészletek használata.
 
-Amit érdemes még itt definiálnunk az a pénzügyek kezelése, mivel ez közvetlenül a céghez tartozik, így logikusabb itt kezelni őket. Szükségünk lesz egy függvényre ami megszerzi nekünk a terjeszkedéshez szükséges anyagi hátteret, valamint egy másikra ha befejeztük a munkálatokat, közben a korábban kiépített útvonalainkból termelt jövedelemből fedezzük az esetlegesen felvett kölcsön összegét.
+A keretrendszer részeként érdemes megemlíteni, a játékhoz elérhető előre készített könyvtárakat. Néhány egyszerű, de fontos elemet tartalmaznak, amelyek közül a saját megvalósítás alatt használunk is. Ilyenek például különböző útvonalkereső algoritmusok, amelyek út vagy vasútvonalakat tudnak létrehozni adott pontok között. A fejlesztő nincs ezeknek az elemeknek a használatára kötelezve, saját implementációt is készíthet egy útvonalkereső algoritmushoz.
 
-\Section{Városok keresésének módszere}
 
-Ahhoz hogy a játék elején, vagy későbbiekben is, a lehető legtöbb bevételt tudjuk generálni, fontos feladat a megfelelő városok kiválasztása az útvonal megépítéséhez. Ezt a saját stratégia implementációjaként fogjuk meghatározni. Egy felhasználó számára ésszerű döntés lehet a legnagyobb népességű városokat összekötni. Ami ténylegesen egy jó megközelítés azonban ez a következő problémákhoz vezethet. A két város túl messze van egymástól hogy az útvonal megbízható legyen. Vagyis a hosszú útvonalon a buszok eltévedhetnek, megfelelő karbantartás nélkül sorozatosan lerobbanhatnak. Ezek miatt pedig romlik az útvonal bevétele és megbízhatósága. Tehát a városok választásánál figyelembe kell vennünk azok távolságát is.
+\Section{NoAI API}
 
-A városok közötti távolságot manhattan távolságban mérjük, mivel az elszállítási díj is ezt a távolságot veszi figyelembe. Ilyenkor az API AIMap.DistanceManhattan(tile1, tile2) függvényét tudjuk segítségül hívni.
+Ahogyan az korábban említve volt a játék egy egészen bőkezű API-val rendelkezik, aminek a segítségével elérhetőek lesznek a fejlesztő számára azok a funkciók és információk mint ami egy felhasználó számára is elérhetőek a játék közben. Értve itt például a pálya állapotának lekérdezését, vagy utak építését. Minden funkció különböző osztályokba vannak rendezve aszerint hogy milyen feladatot látnak el. Például az AIStation osztályban találunk olyan függvényeket amelyekkel egy állomáshoz kapcsolódó információkat tudunk lekérdezni, vagy módosítani.
 
-Másik probléma amibe ilyenkor ütközhetünk, hogy a legnagyobb lakosságú város valójában nem az a város, ahol egy megállóval a legtöbb lakost tudjuk lefedni, legyen az egy folyó, vagy túl dombos talaj miatt. A buszmegállók elhelyezéséről és az várható utasok számának becsléséről a későbbiekben részletesen lesz szó. A városok kiválasztásához nekünk csak a várható utasok számának becsült értékére lesz szükségünk.
+A különböző funkciók mellett az API felel a különböző AI-ok ütemezéséért is a játék futása alatt. Ugyanis a játék futása közben, egy vagy több AI-nak a játék időközönként futási időt ad, amikor a megírt programkód ténylegesen lefut. Ez a játékban egy round-robin módszerű ütemezővel van megoldva, vagyis a vezérlés először a játéknál van, aztán több AI esetén, először az egyik kap időt parancsok végrehajtására, aztán pedig egy másik, amíg mindegyik sorra nem jut, aztán a folyamat elölről kezdődik, így biztosítva hogy a futási idő egyenletesen legyen elosztva. 
 
-Tehát a megfelelő városok kiválasztásánál két fontos tényező a városok távolsága, és az utasok száma amit a városban elhelyezett megálló szolgáltatni tud. Ennek a két változónak a segítségével tudunk felállítani egy egyenletet ami alapján minden várost értékelni tudunk a térképen, és meg tudjuk hozni a megfelelő döntést.
+Az AIController nevű osztály amivel már a minimális AI elkészítése során is találkozhatunk, ugyanis, a "main.nut"-on belül található osztályunknak az API ezen osztályát kell kiterjesztenie ahhoz, hogy a Start() függvényt meg tudjuk hívni az AI indításakor. Valamint ezen keresztül kérdezhetőek le információk a játék jelenlegi állapotáról.
 
-\Section{Városkezelő}
+A fejlesztő szempontjából hasznosak lehetnek az AIError, AIEvent és AILog osztályok. Ezek segítségével van lehetőség kommunikálni a játék konzolába a program futásából különböző debugoláshoz hasznos üzeneteket, vagy az AIError segítségével észlelhetőek és lekérdezhetőek a hibák.
 
-A városkezelő osztálynak a részét képezik azok a függvények amik az infrastruktúra építés szempontjából kihatnak a városokra, vagy azokról szolgálnak nekünk információval.
+Az AI szempontjából több hasznos osztály is rendelkezésre áll, egyrészt az AICompany és AIAccounting amelyek a céggel kapcsolatos információk lekérdezésében és változtatásában és a cég pénzügyeinek a kezelésében segítenek.
 
-Az egyik ilyen függvény amely meghatározza hogy egy városon belül melyik mező lenne a legalkalmasabb egy megálló építésére, ez a programban a FindStationLocation(townid), ami bemeneti értékként a vizsgálandó várost várja. Ennek a pozíciónak a kiválasztása egy fontos feladat a bevételünk növeléséhez, mivel minél több házat tudunk lefedni egy megállóval, annál több utast tudunk elszállítani onnan. A megállóknak két típusa van, az egyik az útra építhető, két végén rendelkezik ki és bejárattal, valamint egy pályaudvar szerű, aminek csak az egyik oldalon van bejárata. Az algoritmus fő célja megtalálni azt a pozíciót a városban ahol a lerakott állomás lefedettségében a várható utasok száma a legnagyobb. Ezt egy olyan városban ahol még egyáltalán nem található meg állomás viszonylag könnyű meghatározni, mert nem kell a cégek közötti vagy a saját megállóink közötti versengéssel számolni.
+De talán a legfontosabbak a megfelelő működésért az AIMap és AITile osztályok a leginkább felelősek. Ugyanis a játék különböző infrastruktúrák kiépítésére alapszik. Ahhoz pedig hogy megfelelő infrastruktúrát tudjunk építeni először is alaposan fel kell mérnünk a játék pályáját, amit az AIMap függvényeinek segítségével tehetünk meg. Amikor a térkép egy részét lekérdezzük vagy vizsgáljuk, eredményül AITile osztályú objektumokat kapunk vissza, amik az egyes mezőket jelölik amik a térképen megtalálhatóak. Ezeknek a mezőknek van számtalan tulajdonságuk amelyek megszabják hogy hogyan jelenik meg a felhasználó számára egy adott mező. Például, van e út a mezőn vagy a mező esetleg víz-e? Az AIMap rendelkezik még több olyan függvénnyel amelyek a későbbiekben hasznosak lesznek az útvonalak tervezésénél. Ilyen például a DistanceManhattan(TileIndex tilefrom, TileIndex tileto) aminek a segítségével két mező közötti manhattan távolságot tudjuk lekérdezni. Ezzel tudjuk adott mezők közötti legrövidebb távolságot is kiszámítani.
 
-Ahhoz hogy meghatározzuk melyik mező lenne a legalkalmasabb, először szükségünk van egy listára amely tartalmazza a város körüli mezőket, majd ezek tulajdonságai alapján tudunk döntésre jutni. Az API-nál említett AITileList egy hasznos osztály ebben az esetben, ugyanis az AddRectangle() függvényével hozzá tudjuk adni a város környezetében található mezőket, majd azokat a Valuate segítségével ki tudjuk értékelni különböző feltételekre, és az értéktől függve megtartani vagy eldobni az elemeit. Elsősorban kizárjuk a hiba lehetőségét azzal, hogy ellenőrizzük, hogy a listában található elemek mind érvényes mezők, másodkörben pedig elvetünk minden olyan mezőt ami víz mezőnek számít, legyen az folyó, tó vagy a pálya szélén található tenger egy mezeje.
-Amennyiben a listában még vannak elemek, folytatjuk a szűrést olyan mezőkre, amelyek legalább egy másik olyan mezővel szomszédosak, amin út található és aztán olyanokra, amelyek nem lejtenek. Ezekre a szűrésekre két dolog miatt van szükség. Az első, hogy elkerüljük az olyan szituációkat, hogy egy 3x3-as terület közepén aminek a szélein épületek vannak, találjunk ideális megállót, azonban ahhoz hogy a megállót összekössük úttal, le kell rombolnunk az egyik épületet, ezzel rontva a szolgáltatott utasok számát a megállóban. A lejtőket pedig az állomások sajátosságba miatt kell kiszűrnünk. Ugyan az utak, a kanyarok kivételével épülhetnek lejtőkre, az útra építhető állomások nem, valamint van esélyünk arra is, hogy olyan út melletti mezőt találjuk, ami egy lejtő, és a ráépített állomás a lejtő tetején foglalna helyet, de a szomszédos út amihez csatlakoztatnunk kellene egy lejtő, vagy mélyebben helyezkedik el. (Ezt ábrával szemléltetni) Ha az adott mezőn út található, elvégzünk egy vizsgálatot ami meghatározza, hogy tudunk-e olyan megállót építeni rá, amin keresztül lehet haladni. Ezt úgy tesszük meg, hogy megvizsgáljuk a környező mezőket, és hogy azok utak-e, és csak azt a lehetőséget hagyjuk fent, amikor csak az állomás két végén található mező út, ugyanis kanyarra, vagy T vagy X kereszteződésre nincs lehetőség ilyen típusú állomás építésére.
+Egy egyszerű példa az API osztályainak működésére:
 
-A szűrések elvégzése után már csak olyan mezők maradtak amire tudnánk megállót építeni, már csak az maradt hátra hogy meghatározzuk, hogy ezek közül melyikre lenne a legérdemesebb. Ennek az elősegítésére létezik az API-ban az AITile.GetCargoAcceptance() függvény, amelynek paraméterként meg kell adjuk a mezőt amelyen az állomást építeni szeretnénk, az árú típusát, ami jelen esetben az utasok, valamint a megálló dimenziót, és a kerületet, amit lefed a buszmegálló. Ezzel a függvénnyel azonban egy problémába ütközünk, amit az API nem is közöl velünk. Ez a függvény mindig a maximális értéket adja vissza a lefedett területről, azaz, nem veszi figyelembe a más cégek, vagy a saját buszmegállóink lefedettségének ütközését, ahol a töbszörösen lefedett területekről szolgáltatott utasok arányosan oszlanak el a megállók között.
+\begin{cpp}
+function GetTilesDistance()
+{
+	local TileList = AITileList();
+	TileList.AddTile= (23);
+	TileList.AddTile = (142);
+	local distanceBetweenTiles =
+	 AIMap.DistanceManhattan(TileList.Begin(), TileList.Next());
+	return distanceBetweenTiles;
+}
+\end{cpp}
 
-Ezért volt szükséges egy saját függvény létrehozása, ami pontosabban tudja megbecsülni az buszmegálló által lefedett utasok számát. Így lett létrehozva a GetStationAcceptance(tile), amely bemeneti értékként azt a mezőt várja, ahova a buszmegállót építeni szeretnénk.
+Ebben a függvényben létrehozunk egy üres Listát ami mező objektumok tárolására alkalmas. Hozzáadjuk a 23 és 142 indexű mezőket a listához. Ennek a műveletnek előfeltétele, hogy a 23-as és 142-es indexű mezők valós, létező mezők. Aztán a listán lépegetve kezdve az elejétől, az AIMap API osztályának DistanceManhattan függvényével kiszámoljuk a két mező közötti manhattan távolságot amit a függvényünk ad meg visszatérési értékként.
 
-Ez a függvény először lekérdezi az adott mező körülötti területet amit szükséges megvizsgálnia annak érdekében hogy van e átfedés a megállók között. Mivel a buszmegállók csak egy mezőt foglalnak el, és 7x7-es területet fednek le, ahol a terület közepén helyezkedik el az állomás, így az a terület amit vizsgálnunk kell az a megálló körül vett, legalább 6 sugarú terület, ugyanis, ha még az állomástól számított 6. mezőn van egy állomás, akkor legalább egy oszlopban átfedés lesz, azonban ha már a 7. van azt nem érdemes vizsgálnunk, mivel pont szomszédos mezőket fednek csak le. (Az állomások lefedettségéről is ábra) Abban az esetben, ha nem találunk másik állomást a vizsgált területen belül, egyszerű dolgunk van, mivel tudjuk használni az API által szolgáltatott függvényt. Amennyiben találunk állomást, a megoldás kicsit bonyolultabb lesz. Először is létrehozunk egy listát amiben eltároljuk az általunk lerakandó megálló által lefedett mezőket és minden mező értékét 1-re állítjuk, aztán egy segédlistában pedig eltároljuk azokat a mezőket, amelyek egy adott már meglévő megálló által le vannak fedve. Végigiterálva az általunk lerakandó állomás által lefedett mezőkön, összehasonlítjuk, hogy az adott mező szerepel-e a segédlistánkban. Amennyiben igen, a List() értékmezőjében lévő értéket növeljük egyel. Ha végigiteráltunk az összes elemen és összes megállón, akkor a lista segítségével ki tudjuk számítani a valódi utasok számát. Lekérdezzük a GetCargoAcceptance() segítségével minden egyes mezőre jutó utasszámot amit elosztunk az adott elem értékével, ami 1, ha nem volt átfedés más állomással, így az értékünk teljes marad, azonban ha volt átfedés, a kapott eredmény annyiad részét fogjuk venni, ahány megállóval van átfedésben a mező. Végül pedig visszaadjuk a kapott értékek összegét.
+Ezen felül a különböző szállítású módokhoz kapcsolódóan is vannak megfelelő osztályok, mint AIRoad, AIRail. Az AIRoad osztály ad rendelkezésünkre minden olyan függvényt amelyekre az utakkal kapcsolatban szükségünk lehet, például utak építése, garázsok építése vagy különböző információk lekérdezése a mezőn lévő útról.
 
-Ha a FindStationLocation()-ben megkapott mezőkre meghívjuk a GetStationAcceptance függvényünket, és a kapott értékeket lementjük a lista részeként, egy egyszerű Sort() segítségével csökkenő sorrendbe is tujunk rendezni, és az így kapott lista első eleme lesz a legtöbb várható utassal rendelkező állomás pozíciója.
+Az API részeként elérhető az AIList osztály is, ami egy láncolt lista szerűen képes tárolni több típusú elemet is. Ennek az osztálynak a függvényei kifejezetten hasznosnak bizonyultak a fejlesztés során, mivel ennek az osztálynak a további gyerekosztályai például az AITownList és AITileList gyakran használatba kerültek. Ezek olyan listák amelyek adott esetben a pályán található városokat, vagy mezőket, attól függően milyen listáról beszélünk, tartalmazzák. Az adott elemekhez a listán belül tudunk értéket is rendelni és bár ez csak integerekre van korlátozva így is sok helyen felhasználható, főleg a Valuate() használatával, amivel az egész listának egyszerre adhatunk értéket egy értékelőfüggvény segítségével. Így például egyszerűen eldönthetjük hogy a listában szereplő mezők közül melyek utak, mivel attól függve hogy út e vagy sem, a függvény ad az elemeknek egy 0 vagy 1 értéket.
 
-A városkezelő utolsó függvénye a buszmegálló építő BuildStation(tile, townid). Ennek meghíváskor átadjuk a mezőt ahova az állomást szeretnénk építeni, valamint a várost ahova építjük. Az utóbbira azért lesz szükségünk, hogyha menetközbe megszakadt volna az útvonal a megálló és a város között, akkor össze tudjuk kötni őket úttal. Itt már csak azt kell meghatároznunk, hogy az adott mező amire építeni szeretnénk a megállót út-e vagy sem, és a mezőre tudunk-e építkezni vagy sem. Az első vizsgálatra a megálló típusának kiválasztása maitt van szükség, ha az adott mező út el kell döntenünk, hogy az építendő megálló fentről lefelé, vagy balról jobbra vezető megálló lesz. Ha a mező nem út, akkor azt kell eldöntenünk, hogy a szomszédos mezők közül melyik az, hogy hozzá tudjuk kötni a megállónkat az úthálózathoz. Az utóbbira pedig akkor, ha a mező nem egy út, de a mezőn valami megakadályozza hogy oda építkezzünk. Abban az esetben, ha valami akadályozza az építkezést, a mezőt leromboljuk és úgy próbálkozunk megépíteni a megállót. Ha a megálló sikeresen megépült, akkor a biztonság kedvéért összekötjük a megálló előtti mezőt a város központjával. Amennyiben a két mező között már volt úthálózat, nem történik építkezés.
+\Section{Nyomkövetés}
 
-\Section{Építkező}
+Az AI tesztelésére a játékon belül van lehetőségünk. Minden alkalommal amikor elindítunk egy játékot, és legenerálódott a világ, valamint beállítottuk hogy rivális cégként megjelenjen az AI-unk is, akkor minden alkalommal elölről indul az AI-unk. Az AI által generált hibák követésére két módszerünk van, az egyik a játék konzolja, amit a "0" gomb lenyomásával tudunk elérni egy játékon belül. itt tudunk parancsokat kiadni amivel elindíthatjuk manuálisan is az AI-t, vagy leállíthatjuk. A másik opció pedig az "MI/Játékszkript nyomkövetés" amit a játék közben a felső eszköztár utolsó menüpontjában találunk. Ebben az ablakban jelennek meg a szövegek, amiket az AILog segítségével kiíratunk, így nyomon követhető hogy éppen mi is történik az AI-al. Emellett található itt egy gomb, amivel újra tudjuk tölteni az AI-t, és egy gombot amivel ugyan azt a menüt tudjuk a játék közben is elérni, mint amit a főmenüből az "MI/Játékszkript beállítások" alatt tudunk megnyitni.
 
-Ez az osztály tartalmazza az útvonalkereső függvényt, ami valójában a keretrendszer részeként szolgáltatott útvonalkereső egy implementációja. Valamint megtalálható még egy segédfüggvény, amivel egy adott mező szomszédos mezőit tudjuk lekérdezni, ami sok építkezésnél hasznos számunkra.
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.8]{images/console.png}
+	\caption{A játékon belül található nyomkövető ablak.}
+	\label{fig:console}
+\end{figure}
 
-Az útvonalkeresőről a játék weboldalán találhatunk részletes leírást, valamint segédletet az implementációhoz. Valójában az AI-ban található implementáció is a weboldalon megtalálható egy minimális átformálása. Ennek a függvénynek csak két mező típusú objektumot kell megadnunk, ami alapján az algoritmus a megadott paraméterek alapján összeköti ezeket és visszaadja az útvonalat egy path objektum formájában. Ha ezt az útvonalat megkaptuk, már csak az útvonal mezőire kell utat építenünk, és van is egy működő algoritmusunk két pont összekötésére.
+\Section{Minimális AI}
 
-Az útvonalkereső algoritmus valójában egy A* algoritmus alapvető implementációja. Ez határozza meg a paraméterek szerinti "legolcsóbb" útvonalat. Példa az átállítható paraméterekre például a kanyarok költsége, alagutak vagy hidak használatának költsége, lejtők használatának költsége.
+Először is, hogyan tudunk megvalósítani egy AI-t a játék keretein belül. Három dologra van szükségünk ahhoz hogy ezt létrehozzuk. Először is a játék mappáján belül található "ai" nevű mappában kell létrehoznunk egy mappát, szbvány szerűen az AI nevével. Aztán ebben a mappában 2 fájlra lesz szükségünk, mindkettő Squirrel nyelvű ".nut" kiterjesztésűnek kell lennie, az egyik "info.nut" a másik pedig "main.nut" néven kell létrehoznunk.
 
-\Section{Útvonalkezelő}
+AZ "info.nut" fájlban tudjuk megadni az általános információkat az AI-unkról, például a szerző nevét, az AI nevét, a játékban elérhető rövid leírását, a kód verziószámát és kiadási dátumát. Ebben az osztályban van lehetőségünk különböző beállítások definiálására is, amihez a felhasználó az egyik a játékban található menüpontban tud hozzáférni. Ahhoz hogy a játék magjának is a tudtára adjuk hogy ez egy AI a RegisterAI() nevű függvényt kell meghívnunk.
 
-Az útvonalak kezeléséhez szükségünk van egy osztályra, amelynek a példányaiban lehetőség van eltárolna az összes adott vonalhoz tartozó információt, ide értve a városokat amik között a vonal fut, a buszmegállók és garázs pozícióját a térképen és a vonalhoz tartozó buszok listáját, ide értve a meglévő, és a vásárlásra várakozó buszokat is. A programban ez az osztály felelős az egyes útvonalak felállításáért, ide értve a hozzá tartozó infrastruktúra felépítését és a elemeinek kezelését is. Az infrastruktúra felépítéséhez szükséges feladatokat ellátó függvényekről már korábban esett szó. Itt a CreateNewLine(townpair) függvény foglalja össze ezeket.
+Példa az info.nut tartalmára:
 
-Ennek a függvénynek kell megkapnia az összekötendő városokat, ami alapján meghívja a többi szükséges osztályt a buszmegállók helyeinek meghatározására és megépítésére. Amennyiben minden építkezés sikeresen lezajlott az osztály többi függvénye megépíti és lementi az útvonalhoz kapcsolt garázst majd megvásárolja a szükséges mennyiségű járművet. Ezután pedig kiadja a megfelelő utasításokat a buszoknak, hogy melyik megállóba kell eljutniuk, aztán elindítja őket. Ez a folyamat is több kisebb problémához vezet amikkel külön kell foglalkoznunk.
+\begin{cpp}
+class MyNewAI extends AIInfo 
+{
+	function GetAuthor()        { return "Newbie AI Writer"; }
+	function GetName()          { return "MyNewAI"; }
+	function GetDescription()   { return "An example AI"; }
+	function GetDate()          { return "2007-03-17"; }
+	function GetShortName()     { return "MYAI"; }
+	function CreateInstance()   { return "MyNewAI"; }
+}
+/* Tell the core we are an AI */
+RegisterAI(MyNewAI())
+\end{cpp}
 
-Ahhoz hogy buszokat tudjunk vásárolni először is egy garázsra van szükségünk, ahol ezeket a buszokat el tudjuk tárolni és a későbbiekben karbantartani, vagy elöregedésük után eladni. Ennek a garázsnak a pozíciójának a meghatározása hasonló folyamat az megállók helyének meghatározásával, leszámítva a lefedett területek bonyolultságát. Erre készítünk egy függvényt AddDepot(tile) néven, aminek megadjuk a városhoz tartozó megálló pozícióját. Aztán veszünk a megálló körüli területet egy sugárral, és megvizsgáljuk hogy a városban építettünk-e már korábban garázst, ugyanis ha igen ezt érdemes újrahasználni, mivel a megállókkal ellentétben ennek nincs negatív hatása az utasokra, azonban megspóroljuk egy felesleges garázs fenntartási költségeit.
+Ha ezzel készen vagyunk, a másik "main.nut" fájlban tudjuk az AI viselkedését meghatározni. Itt kell megadnunk a fő ciklusát az AI-nak valamint egyéb osztályok és forrásfájlokra való hivatkozásokat. Az osztálynak néhány alapértelmezett funkciója van melyek a következőek:
 
-Abban az esetben ha még nincs garázs a körzetben, veszünk minden olyan mezőt egy körzetben ami nem lejt, út mellett helyezkedik el és önmaga nem út. A megmaradt mezők közül kiválasztjuk azt, amelyik a legközelebb van a vonalhoz tartozó másik városhoz. Erre nem feltétlen lenne szükség, de így nagyobb valószínűséggel helyezzük el a garázst olyan pozícióba, ami olyan úttal szomszédos amin a két megálló között közlekedve elhaladnak a járműveink. Ha találtunk alkalmas mezőt a garázsnak, megvizsgáljuk tudunk-e építkezni a mezőre, és ha igen elhelyezzük a garázst.
+\begin{itemize}
+	\item Start() - Itt kapja meg a vezérlést az AI
+	\item Save() - Ezzel tudjuk lementeni az AI állapotát amikor a játékmenet mentése történik
+	\item Load() - A játék betöltésénél itt tudjuk betölteni a korábban lementett állapotát az AI-nak
+\end{itemize}
 
-A garázs meglétével már lehetőségünk van új járművek vásárlására. Mielőtt költekezésbe kezdenénk, érdemes kiszámítani egy közelítő értéket, hogy hány buszra lesz szükségünk, hogy a várható utasmennyiséget le tudjuk fedni a vonalon. Ebből a célból létrehozunk egy EstimateBusesNeeded(station1, station2) függvényt. Ez egy egyszerű egyenlet segítségével készít egy becslést a szükséges buszok számáról. Az alap érték legalább 2, mivel szeretnénk, hogy legalább mindkét megállóban legyen egyszerre busz és ezek forogjanak a megállók között. A számításnál figyelembe vesszük még a vonal állomásai által lefedett várható utasok számát, az állomások egymástól vett távolságát és a buszok férőhelyeit. A visszaadott érték a becsülten szükséges buszok száma. Ezt az értéket pontosan nem fogjuk tudni megállapítani, mivel a véletlenszerű tényezők amik befolyásolják a buszok haladási sebességét, például a lerobbanás, vagy kereszteződésben való várakozás is befolyásolhatja a buszok menetidejét.
+Ezek közül a függvények közül számunkra a Start() a legfontosabb, ugyanis, amikor elindítjuk az AI-t a játékon belül, ezt a függvény fog meghívódni, és az itt megírt programrészek fognak lefutni. Éppen emiatt, ha azt szeretnénk hogy a játék közben folyamatosan fusson az AI-unk, egy végtelen ciklusba érdemes belerakni a főbb parancsokat, amelyek ismétlődésével jön létre az AI játékmenete.
 
-Ha rendelkezünk az algoritmusunk által becsült szükséges buszok számával, szükségünk van egy folyamatra, ami ezeknek a buszoknak a megvásárlását elvégzi. Erre a célra lett megalkotva az AddBuses(depot, amount) függvény. A depot-tal adjuk meg hogy melyik garázsba szeretnénk építeni az adott buszokat, az amount-tal pedig vásárolandó buszok számát, ami alap esetben a becsült buszok száma.
+\begin{cpp}
+class MyNewAI extends AIController
+{
+	function Start()
+	{
+		while (true) {
+			AILog.Info("Tell the console we are running");
+		}
+	}
+	function Save();
+}
 
-Először is meg kell határoznunk, hogy milyen típusú járművet szeretnénk vásárolni. Erre azért van szükség, mivel a játékbeli idő előrehaladtával újabb járművekhez van hozzáférésünk, amik modernebbek, nagyobb férőhellyel rendelkeznek vagy megbízhatóbb működésűek. Az egyszerűség kedvéért, mi csak a legnagyobb férőhelyű busszal foglalkozunk az adott buszok listája közül. Ennek a busztípusnak a meghatározását egy külön függvénybe rendeztem, mivel a buszok karbantartásánál is hasznos lesz a legnagyobb kapacitású busz meghatározása.
+function MyNewAI::Save()
+{
+	return {};
+}
+\end{cpp}
 
-Ha sikeresen eldöntöttük a busz modellt, már csak meg kell vásárolnunk az adott számú darabot belőle. Esetleg ha ez a folyamat nem lenne sikeres egyéb okok miatt, például a cégnek nincs elég busza 10 buszra csak 7-re, abban az esetben a maradék 3-at amit nem sikerült megvásárolni, eltároljuk a vonal változóiban, hogy később, amikor a cég rendelkezik elegendő pénzmennyiséggel, újra megpróbáljuk megvásárolni ezt a 3 járművet.
+Ahogyan a példában látható, a MyNewAI osztályunk kiterjeszti az API AIController osztályát, ezáltal hozzáférést kap a beépített statikus függvényeinek használatára, mint a Start(), Save(), Load(). Az osztályon belül látható a Save függvény prototípusa, erre a Squirrel-en belül nincs szükség, de más programozási szabványban megszokott Itt megfigyelhető, hogy kapcsos zárójelek helyett pontosvessző zárja a parancsot. Az alsó Save() függvény a valódi függvénye a Save-nek, mivel ez az osztály deklariáción kívül helyezkedik el, meg kell adnunk melyik osztályhoz tartozik, ezt a dupla kettőspont előtt tesszük meg.
 
-Miután rendelkezünk minden elemmel ami a vonal működéséhez szükséges, ide értve a buszmegállókat, az úthálózatot a városok között, a garázst és a buszokat, az utolsó feladatunk a parancsok kiosztása a buszoknak, és az elindításuk. Ezt a feladatot a SetupBus(bus) függvény látja el, ami hozzáadja egy csoporthoz a járművet, amely vonalanként különböző aztán a vonal változói között található buszmegállókba, és a vonalhoz tartozó garázs-t kiadja parancsként. A parancsoknak több típusa van, ha nem határozunk meg kifejezetten egyet, az alapértelmezett parancs a lerakodás ha van mit, és felrakodás ha van mit az állomások esetén. Egy garázs parancs esetén ez karbantartás a garázsban, ha szükséges parancsot jelenti. Ennek a függvénynek a lefutása után a vonalunk életbe lép és aktívan látogatja a hozzá tartozó megállókat a buszaival.
+Ahhoz, hogy ez az AI megjelenjen játék közben, még a főmenüben az "MI/Játékszkript beállítások" menüpont alatt be tudjuk állítani hány ellenfelet szeretnénk a játékunkban. Valamint azt is rögzíteni tudjuk hogy az adott ellenfél melyik feltelepített AI legyen. Alapértelmezetten ez a beállítás véletlenszerű. Ha ezt beállítottuk, a játék indításakor a mi AI-unknak is meg kell jelennie a cégek között.
 
-Az utolsó ide tartozó függvény a ManageBuses(). Erre a fügvényre azért van szükségünk, hogy a buszokat amelyeket nem sikerül az első folyamatban megvásárolni, később újra tudja próbálni a program. Valamint a folyamat időközönként újra ellenőrzi a szükséges buszok számát és összehasonlítja a jelenleg futó buszok számával.Végső soron pedig kezeli az elöregedő buszok lecserélésének folyamatát.
+\Section{Hasonló implementációk}
 
-A hiányzó buszok pótlása egy egyszerű feladat, csak ellenőriznünk kell, hogy van e szükség újabb buszok vásárlására és ha igen, a korábban bemutatott függvény segítségével pótolni tudjuk a ezeket. Amennyiben ismételten nem lenne elég pénze a cégnek a buszokra, az értéket megfelelően változtatjuk a továbbra is hiányzó buszok számára.
+Az OpenTTD játék kiegészítők nélküli verziójában nem található előre beépített gépi ellenfél, minden hasonló implementációt a játék közössége hozott létre. Ezek mind rendelkeznek a játék fórumán egy bejegyzéssel, valamint elérhetőek és letölthetőek a játékon belül, a fórumbejegyzésben megadott linkről, vagy pedig az ún. “BaNaNaS” repository-ból, ahol egyébként az összes a játékban elérhető szkriptek, fejlesztések, köztük a gépi ellenfelek listája megtalálható, mellette linkelve az adott tartalom fórumbejegyzését. A meglévő AI-ok közül sok már nincs aktív fejlesztés alatt. A legtöbb fejlesztése a 2000-es évek végén kezdődött, aztán a 2010-es évek végére be is fejeződött. 2008 és 2017 között évente rendeztek AI bajnokságot, ahol különböző körökben egymásnak vetették az indulókat, és teljesítmény alapján értékelték azokat.
 
-Ha a korábbi becslésünkkel megegyező számú busz fut a vonalon, akkor újra ellenőrizzük a szükséges buszok számát. Erre azért van szükség, mert egy rivális cég vagy saját cégünk újonnan épült megállója átfedésbe kerül a korábban szabad megállóval, a várható utasok száma is változhat emiatt. Vagy egy másik ok a változásra a városok növekedése. Előfordulhat hogy egy vonal éveken keresztül használatban van egy városban, aminek hatására a város növekedni kezd, több ház épül a területen, vagy korábbi kis lakóházak a város központjában nagyobb irodaházakra épülnek át. Ezért érdemes figyelmet fordítani ezekre a folyamatokra is. Így ha az újrabecsült érték magasabb mint a jelenleg futó buszaink száma, növeljük a szükséges buszok értékét és megpróbáljuk megvásárolni azokat. Abban az esetben, ha a újrabecsült érték alacsonyabb mint a buszaink száma a vonalon, akkor a különbségükkel egyenlő számú buszt eltávolítunk a vonalról.
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.4]{images/bananas.png}
+	\caption{Játékszkriptek és AI-ok letöltése a játékon belől a BaNaNaS repositoryból.}
+	\label{fig:bananas}
+\end{figure}
 
-Az elöregedő buszok lecserélése közben is el kell távolítanunk adott buszokat a vonalról, mielőtt ezt megtesszük, megvizsgáljuk, hogy a jelenleg legnagyobb férőhelyű busz ugyan az a modell-e mint az elöregedett busz. Amennyiben igen, az öreg buszt klónozzuk, azaz, veszünk egy ugyan olyan modellű buszt a vonal garázsába, ami már alapértelmezetten rendelkezik a korábbi busz parancsaival. Ha más modellt kapunk, abban az esetben megvásároljuk az új buszt, hozzáadjuk a buszok listájához és kiadjuk neki a vonalhoz tartozó parancsokat majd elindítjuk, miközben megkezdjük a régi busz eladását.
+A különböző AI-ok mind különböző céllal jöttek létre. Vannak, amelyek egyes szállítás módszer lehető legjobb megvalósítására fókuszálnak, például TrAIns(Vonatokra), RoadAI(közúti járművekre), Chopper(Légi közlekedésre). Ezek mellett vannak általánosak is, például az AdmiralAI amelynek fókusza a lehető legtöbb funkció implementálása volt vagy a SimpleAI ami szintén általános és több szállítási módszert is alkalmazó AI. Vannak olyan AI-ok is amik lehet hogy nem a leghatékonyabban működnek, de van egy olyan tulajdonságuk ami érdekessé tenné azt, például a PathZilla ami gráfelmélet segítségével létrehozott úthálózatok építésére fókuszál, valamint többfajta útvonalkereső algoritmust alkalmaz.
 
-Az buszok eltávolítása közben egy olyan problémába ütközünk, hogy csak olyan buszok eladására van lehetőségünk, amelyek egy garázsban vannak leállítva. Tehát, amikor el akarunk adni egy járművet, először ki kell adnunk a parancsot hogy menjen a legközelebbi garázsba, aztán ha látjuk hogy az adott busz megállt tudjuk csak eladni. Egy busz esetében ez nem is lenne nagy hatással a programunkra, viszont mivel a vonal felépítésekor egyszerre veszünk több buszt is, ezek egyszerre fognak kiöregedni is. Így ha minden buszra egyesével kellene várnunk míg befut a garázsba és eladjuk, jelentős futási időt pazarolna el az AI, amit akár új vonalak létrehozására is szánhatna. Ezért minden elöregedett vagy eladásra váró buszt eltávolítunk a buszok listájából, és hozzáadjuk az eladásra váró buszok listájához. Ezt a listát a járművek kezelése előtt ellenőrizzük, hogy az ebben szereplő buszok beérkeztek-e már a garázsba és amennyiben igen, eladjuk azokat. Így párhuzamosítva az eladás folyamatát a program többi részével.
+Az AdmiralAI célja a játékhoz készített API legtöbb funkciójának kihasználása, valamint a változatos játékélmény biztosítása. Az utóbbit azzal próbálja meg elérni, hogy az AI minden szállítási módszert igyekszik alkalmazni. A mi szemszögünkből azért érdemes az AdmiralAI-al foglalkozni, mivel sok példát találhatunk a program forráskódjában, az API függvényeinek megvalósítására, valamint az AI felépítésére. A fájlszerkezet nagyon jól kitalált és felépített, minden összefüggő függvény, parancs, el van tagolva megfelelő osztályokba, mappákba, bár a kód értelmezése előzetes ismeretek nélkül elég nehézkes a kódhoz tartozó kommentekkel együtt is. AZ AI részletessége, és igényessége valamilyen szinten betudható adnak, hogy a készítője Thijs 'Yexo' Marinussen egyben az OpenTTD egyik fejlesztője, és az API fejlesztője is egyben. Az AI sok inspirációt tud adni a sajátunk fejlesztéséhez, de előzetes ismeretekre van szükségünk az API-ról a megfelelő szintű megértéshez.
+
+A PathZilla már sokkal egy érdekesebb megvalósítása egy AI-nak, mivel gráfelméleti algoritmusokat használ a városok összekötésére, és útvonalak megtervezésére. Először veszi a térképen található városok pozíciót, és ezek között létrehoz egy hálót Delaunay-háromszögeléses módszerrel. A kapott hálón megkeresi a legrövidebb utak fáját és a minimális feszítőfát és a kettő összemosásával kapott gráf alapján köti össze az érintett városokat. Ez a működés szemléltetve van az AI fórum bejegyzésében egy rövid képsorozat formájában.
+
+((Algoritmus/háromszögelés módjának részletesebb bemutatása??))
+
+A TrAIns egy 2009-ben fejlesztett intelligencia, ami egy brazil egyetem két hallgatója által készült el, mint kutatói munka. A céljuk az volt a projekttel, hogy egy olyan AI-t készítsenek, ami hatékonyan tudjon vasútvonalakat építeni és használni, ami akkoriban nem volt gyakori az AI-ok között, vagy nem hatékony megvalósítással rendelkezett. A korábbiakkal szemben, amelyek csak közvetlen összekötöttek állomásokat és egy vonat használta a pályát oda-vissza, ez az AI úgy épített vasútvonalakat, mint ahogyan azt egy játékos is tenné. Több vágányos vonalakat is épített, így lehetővé tette hogy egy vonalon egyszerre több vonat is közlekedhessen, és ezek a vonalak keresztezni is tudják egymást. Ennek a segítségével képes egy célba több egymáshoz közeli forrásból árut elszállítani úgy, hogy a vonal nagy részét több vonat is használja egyszerre.
+
+\Section{Saját stratégiák}
+
+Az eddig megemlített AI-ok nagy része mint vagy tudományosabb szempontból közelíti meg a játék problémáját. Ezzel szemben a saját megvalósításnál az én szempontom egy olyan AI készítése amely többnyire a saját játékstílusom megvalósítása a számítógép erejének segítségével. Ezalatt azt értem, hogy a probléma megközelítése emberi szempontból történik, azonban a tényleges döntéshozásokat már az AI fogja megtenni.
+
+Amíg például a PathZilla esetében az útvonalak előre el vannak döntve különböző gráfoknak a segítségével és az útvonalak később kerülnek megépítésére, az én játékos szemszögemből hatékonyabbnak tűnik csak néhány arra érdemes város kerül összekötésre. Ezek általában a legnagyobb lakossággal rendelkező városok lesznek. Játék közben egy emberi felhasználó mire megvizsgálja a pálya jelenlegi helyzetét, és meghatározza mondjuk két szomszédos városról hogy oda érdemes lehet egy buszvonalat létrehozni, ha az AI-nak meg tudjuk adni milyen szempontok alapján vizsgálja meg a pályát, lehet hogy ugyan arra, a döntésre, vagy jobbra tud jutni mint a felhasználó rövidebb idő alatt.
+
+Aztán ha a kiválasztott város ideális is, a buszmegálló kiválasztásának helye sem egyszerű döntés csak a térképet szempontnak venni, az AI sokkal alaposabban át tudja vizsgálni az adott területet mint ahogyan arra egy játékosnak módja van.
+
+A járművek kezelésének feladatát is átadva az AI-nak sokkal effektívebb tud lenni mint egy átlagos felhasználó. Mivel egy új buszhálózathoz, egy játékos sokkal lassabban tudja felmérni egy vonalra küldendő szükséges buszoknak a számát, amíg a program pár másodperc alatt döntésre tud jutni. A felhasználónak figyelnie kell a buszmegállóban várakozók számát és ahhoz képest változtatni a buszokat. Valamint az elöregedő buszok cseréjét is csak egyesével tudja elvégezni.
