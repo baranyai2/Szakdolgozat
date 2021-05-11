@@ -32,7 +32,14 @@ A korábban felsorolt tevékenységekhez természetesen a cégnek pénzre is sz�
 
 \Section{Átfogó működés és irányítás}
 
-A programkódunk main függvényében történik meg a hívás ami elindítja az AI folyamatot a játékon belül, ezért itt történnek meg a lényeges részei a programnak, mint például a cég létrehozása és a fő munkafolyamat leírása. Mivel a játék célja egy infrastruktúra kiépítése és jövedelem generálása, így ezt a két dolgot itt kell körvonalaznom. Ez az osztály szolgál az AI "agya"-ként, míg a többi osztály "kezek"-ként amik végrehajtják az utasításokat amiket az "agy"-tól kapnak.
+A programkódunk main függvényében történik meg a hívás ami elindítja az AI folyamatot a játékon belül, ezért itt történnek meg a lényeges részei a programnak, mint például a cég létrehozása és a fő munkafolyamat leírása\ref{fig:folyamat}. Mivel a játék célja egy infrastruktúra kiépítése és jövedelem generálása, így ezt a két dolgot itt kell körvonalaznom. Ez az osztály szolgál az AI "agya"-ként, míg a többi osztály "kezek"-ként amik végrehajtják az utasításokat amiket az "agy"-tól kapnak.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.5]{images/folyamat.png}
+	\caption{Az AI működésének folyamata}
+	\label{fig:folyamat}
+\end{figure}
 
 Itt kell kiadnom tehát azokat a parancsokat, hogy új buszvonalak létrejöjjenek a térképen, ehhez lesz majd szükségem a program összes többi elemére, amelyek ezekkel a kisebb problémakörökkel foglalkoznak. Először is fel kell mérnünk a térkép jelenlegi helyzetét, ami alapján az AI meg tudja állapítani az ideális helyet a terjeszkedéshez. Miután ezt a helyet meghatározta, az adott városok között létre kell hoznia az adott buszvonalat, buszmegállókat kell építenie a városokban, össze kell kötnie úttal a városokat, garázst kell építenie az útvonalon, és buszokat kell vásárolnia a vonalra. Azokat a feladatokat amiknek a csoportosítására lehetőség van, mint például a buszmegállók és buszok építése kiemeltem innen és a vonalak kezeléséhez csatoltam, mert logikailag ahhoz a folyamathoz tartozik.
 
@@ -51,8 +58,10 @@ Tehát a megfelelő városok kiválasztásánál két fontos tényező a városo
 Végül az osztály részeként szereplő funkciók az ehhez az egyenlethez szükséges változókat és értékeket állítják elő.
 
 Az így kapott egyenletünk a következő:
+\begin{center}
+	$ e(i,j)=w_{a} \cdot a(i,j)+(1-w_{a}) \cdot f(d(i,j)) $
+\end{center}
 
-$ Ide majd az egyenlet, amit még nem tudok hogy kell $
 
 Az egyenlet paramétereinek változtatásáról, és annak az eredményeiről a tesztelés fejezetben lesz részletesebben szó.
 

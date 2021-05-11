@@ -30,24 +30,32 @@ Példa Sqirrel kódra:
 \begin{cpp}
 class Osztaly
 {	
-	constructor(valt1,valt2)
-	{
-		// Konstruktor kodja
-	}
-		
-	local szoveg = "Ez egy szoveg"; //valtozo definicio
-	local szam = 10;
-	local tomb = [0, "szoveg", [2.0, "tomb"]];
+  constructor(valt1,valt2)
+  {
+    // Konstruktor kodja
+  }
+  //valtozo definiciok	
+  local szoveg = "Ez egy szoveg"; 
+  local szam = 10;
+  local tomb = [0, "szoveg", [2.0, "tomb"]];
 }
 // Sajat fuggveny definicio
 function Osztaly::areaOfCircle(radius) {
-	return (PI * radius * radius);
+  return (PI * radius * radius);
 }
 // Fuggvenyhivas
 local terulet = areaOfCircle(10);	
 \end{cpp}
 
-A Squirrel egy típuskötetlen nyelv, ami azt jelenti, hogy a változók definiálásakor nem kell megadnunk az adott változó típusát, hanem a fordító azt automatikusan észleli és hozzárendeli. Ahogyan a példában is látható, változót a "local" szóval tudunk létrehozni. A változóknak nem szükséges memóriát allokálni, ezt a beépített memóriakezelő alapból elvégzi helyettünk, valamint a deallokációt is.
+A Squirrel egy dinamikusan típusos nyelv, ami azt jelenti, hogy a változók definiálásakor nem kell megadnunk az adott változó típusát, hanem a fordító azt automatikusan észleli és hozzárendeli. Azonban a futási idő alatt egy változó típusa változhat, például egy integer változót ha szorzunk egy float-tal a kapott értékünk float típusú lesz. A Squirrelben kétféle változót különböztetünk meg hatókör szerint. Az egyik a local a másik a global változó. Lokális változókat a local kulcsszóval tudunk definiálni, aminek a hatásköre az adott programrész lesz. Ezzel szemben a globális változókat általában a program gyökerében szokás definiálni. Fontos megjegyezni, hogy "global" kulcsszó nem létezik a nyelv szintaktikájában. A gyökérben definiált globális változóknál nem kell kulcsszót használnunk, azonban ha egy osztályon belül tesszük ezt meg "::"-t kell használnunk. A változóknak nem szükséges memóriát allokálni, ezt a beépített memóriakezelő alapból elvégzi helyettünk, valamint a deallokációt is.
+
+\begin{cpp}
+// Egy globalis valtozo, kezdeti ertekkel
+aGlobalVariable <- 42.0;
+
+// Globalis valtozo egy osztalyon belul definialva
+::aGlobalVariable <- 42.0001;
+\end{cpp}
 
 A korábban felsorolt funkciói miatt a Squirrel egy nagyon rugalmas és egyszerűen implementálható eszköz, ami tökéletes egy játékhoz való API elkészítéséhez. További előnyök ami miatt az OpenTTD fejszeltői a Squirrel mellett döntöttek a C++ helyett az AI támogatáshoz:
 
@@ -73,29 +81,29 @@ A keretrendszer részeként érdemes megemlíteni, a játékhoz elérhető előr
 
 \Section{NoAI API}
 
-Ahogyan az korábban említve volt a játék egy egészen bőkezű API-val rendelkezik, aminek a segítségével elérhetőek lesznek a fejlesztő számára azok a funkciók és információk mint ami egy felhasználó számára is elérhetőek a játék közben. Értve itt például a pálya állapotának lekérdezését, vagy utak építését. Minden funkció különböző osztályokba vannak rendezve aszerint hogy milyen feladatot látnak el. Például az AIStation osztályban találunk olyan függvényeket amelyekkel egy állomáshoz kapcsolódó információkat tudunk lekérdezni, vagy módosítani.
+Ahogyan az korábban említve volt a játék egy egészen bőkezű API-val rendelkezik, aminek a segítségével elérhetőek lesznek a fejlesztő számára azok a funkciók és információk mint amik egy felhasználónak is elérhetőek a játék közben. Értve itt például a pálya állapotának lekérdezését, vagy utak építését. Minden funkció különböző osztályokba vannak rendezve aszerint hogy milyen feladatot látnak el. Például az AIStation osztályban találunk olyan függvényeket amelyekkel egy állomáshoz kapcsolódó információkat tudunk lekérdezni, vagy módosítani.
 
 A különböző funkciók mellett az API felel a különböző AI-ok ütemezéséért is a játék futása alatt. Ugyanis a játék futása közben, egy vagy több AI-nak a játék időközönként futási időt ad, amikor a megírt programkód ténylegesen lefut. Ez a játékban egy round-robin módszerű ütemezővel van megoldva, vagyis a vezérlés először a játéknál van, aztán több AI esetén, először az egyik kap időt parancsok végrehajtására, aztán pedig egy másik, amíg mindegyik sorra nem jut, aztán a folyamat elölről kezdődik, így biztosítva hogy a futási idő egyenletesen legyen elosztva. 
 
-Az AIController nevű osztály amivel már a minimális AI elkészítése során is találkozhatunk, ugyanis, a "main.nut"-on belül található osztályunknak az API ezen osztályát kell kiterjesztenie ahhoz, hogy a Start() függvényt meg tudjuk hívni az AI indításakor. Valamint ezen keresztül kérdezhetőek le információk a játék jelenlegi állapotáról.
+Az AIController nevű osztály amivel már a minimális AI elkészítése során is találkozhatunk, ugyanis, a "main.nut"-on belül található osztályunknak az API ezen osztályából kell leszármaznia ahhoz, hogy a Start() függvényt meg tudjuk hívni az AI indításakor. Valamint ezen keresztül kérdezhetőek le információk a játék jelenlegi állapotáról.
 
-A fejlesztő szempontjából hasznosak lehetnek az AIError, AIEvent és AILog osztályok. Ezek segítségével van lehetőség kommunikálni a játék konzolába a program futásából különböző debugoláshoz hasznos üzeneteket, vagy az AIError segítségével észlelhetőek és lekérdezhetőek a hibák.
+A fejlesztő szempontjából hasznosak lehetnek az AIError, AIEvent és AILog osztályok. Ezek segítségével van lehetőség kommunikálni a játék konzolába a program futásából különböző nyomkövetéshez hasznos üzeneteket, vagy az AIError segítségével észlelhetőek és lekérdezhetőek a hibák.
 
 Az AI szempontjából több hasznos osztály is rendelkezésre áll, egyrészt az AICompany és AIAccounting amelyek a céggel kapcsolatos információk lekérdezésében és változtatásában és a cég pénzügyeinek a kezelésében segítenek.
 
-De talán a legfontosabbak a megfelelő működésért az AIMap és AITile osztályok a leginkább felelősek. Ugyanis a játék különböző infrastruktúrák kiépítésére alapszik. Ahhoz pedig hogy megfelelő infrastruktúrát tudjunk építeni először is alaposan fel kell mérnünk a játék pályáját, amit az AIMap függvényeinek segítségével tehetünk meg. Amikor a térkép egy részét lekérdezzük vagy vizsgáljuk, eredményül AITile osztályú objektumokat kapunk vissza, amik az egyes mezőket jelölik amik a térképen megtalálhatóak. Ezeknek a mezőknek van számtalan tulajdonságuk amelyek megszabják hogy hogyan jelenik meg a felhasználó számára egy adott mező. Például, van e út a mezőn vagy a mező esetleg víz-e? Az AIMap rendelkezik még több olyan függvénnyel amelyek a későbbiekben hasznosak lesznek az útvonalak tervezésénél. Ilyen például a DistanceManhattan(TileIndex tilefrom, TileIndex tileto) aminek a segítségével két mező közötti manhattan távolságot tudjuk lekérdezni. Ezzel tudjuk adott mezők közötti legrövidebb távolságot is kiszámítani.
+De talán a legfontosabbak a megfelelő működésért az AIMap és AITile osztályok a leginkább felelősek. Ugyanis a játék különböző infrastruktúrák kiépítésére alapszik. Ahhoz pedig hogy megfelelő infrastruktúrát tudjunk építeni először is alaposan fel kell mérnünk a játék pályáját, amit az AIMap függvényeinek segítségével tehetünk meg. Amikor a térkép egy részét lekérdezzük vagy vizsgáljuk, eredményül AITile osztályú objektumokat kapunk vissza, amik az egyes mezőket jelölik amik a térképen megtalálhatóak. Ezeknek a mezőknek van számtalan tulajdonságuk amelyek megszabják hogy hogyan jelenik meg a felhasználó számára egy adott mező. Például, van-e út a mezőn vagy a mező esetleg víz-e? Az AIMap rendelkezik még több olyan függvénnyel amelyek a későbbiekben hasznosak lesznek az útvonalak tervezésénél. Ilyen például a DistanceManhattan(TileIndex tilefrom, TileIndex tileto) aminek a segítségével két mező közötti manhattan távolságot tudjuk lekérdezni. Ezzel tudjuk adott mezők közötti legrövidebb távolságot is kiszámítani.
 
 Egy egyszerű példa az API osztályainak működésére:
 
 \begin{cpp}
 function GetTilesDistance()
 {
-	local TileList = AITileList();
-	TileList.AddTile= (23);
-	TileList.AddTile = (142);
-	local distanceBetweenTiles =
-	 AIMap.DistanceManhattan(TileList.Begin(), TileList.Next());
-	return distanceBetweenTiles;
+  local TileList = AITileList();
+  TileList.AddTile= (23);
+  TileList.AddTile = (142);
+  local distanceBetweenTiles =
+  AIMap.DistanceManhattan(TileList.Begin(), TileList.Next());
+  return distanceBetweenTiles;
 }
 \end{cpp}
 
@@ -107,7 +115,16 @@ Az API részeként elérhető az AIList osztály is, ami egy láncolt lista szer
 
 \Section{Nyomkövetés}
 
-Az AI tesztelésére a játékon belül van lehetőségünk. Minden alkalommal amikor elindítunk egy játékot, és legenerálódott a világ, valamint beállítottuk hogy rivális cégként megjelenjen az AI-unk is, akkor minden alkalommal elölről indul az AI-unk. Az AI által generált hibák követésére két módszerünk van, az egyik a játék konzolja, amit a "0" gomb lenyomásával tudunk elérni egy játékon belül. itt tudunk parancsokat kiadni amivel elindíthatjuk manuálisan is az AI-t, vagy leállíthatjuk. A másik opció pedig az "MI/Játékszkript nyomkövetés" amit a játék közben a felső eszköztár utolsó menüpontjában találunk. Ebben az ablakban jelennek meg a szövegek, amiket az AILog segítségével kiíratunk, így nyomon követhető hogy éppen mi is történik az AI-al. Emellett található itt egy gomb, amivel újra tudjuk tölteni az AI-t, és egy gombot amivel ugyan azt a menüt tudjuk a játék közben is elérni, mint amit a főmenüből az "MI/Játékszkript beállítások" alatt tudunk megnyitni.
+Az AI tesztelésére a játékon belül van lehetőségünk. Minden alkalommal amikor elindítunk egy játékot, és legenerálódott a világ, valamint beállítottuk hogy rivális cégként megjelenjen az AI-unk is, akkor minden alkalommal elölről indul az AI-unk. Az AI által generált hibák, üzenetek követésére két módszerünk van, az egyik a játék konzolja, amit a "0" gomb lenyomásával tudunk elérni egy játékon belül. Itt lehet parancsokat kiadni amivel elindíthatjuk manuálisan is az AI-t, vagy leállíthatjuk. A másik opció pedig az "MI/Játékszkript nyomkövetés"\ref{fig:console} amit a játék közben a felső eszköztár utolsó menüpontjában találunk. Ebben az ablakban jelennek meg a szövegek, amiket az AILog.Info() vagy AILog.Error() segítségével kiíratunk, így nyomon követhető hogy éppen mi is történik az AI-al. Emellett található itt egy gomb, amivel újra tudjuk tölteni az AI-t, és egy gombot amivel ugyan azt a menüt tudjuk a játék közben is elérni, mint amit a főmenüből az "MI/Játékszkript beállítások" alatt tudunk megnyitni.
+
+Példa az API használatára a nyomkövetéshez:
+\begin{cpp}
+AILog.Info("Ez egy egyszeru szoveg");
+AILog.Info("Ez szoveg egy adott valtozoval" + szam);
+AILog.Error("Ez a szoveg pirosan jelenik meg az ablakban");
+\end{cpp}
+
+Abban az esetben, ha a programunk fordítás, vagy futás közben olyan hibába ütközik, amit nem kezeltünk le, egy részletes hibajelentést kapunk róla a nyomkövető ablakban, és a játék konzolában is. Ez pontosan leírja, hogy melyik sor futása közben lépett fel a hiba, és az adott pillanatban a létező változóknak mi volt az értéke. Ez a funkció nagyon hasznos volt az AI fejlesztése közben, mivel jelentősen megkönnyítette a hibajavítás folyamatát. Mert a Visual Studio Code-hoz használt Squirrel kiegészítő nem rendelkezett teljes szintaktikai hiba észleléssel, azonban az első futtatás után könnyen megtalálhatóak voltak az adott hibák.
 
 \begin{figure}
 	\centering
@@ -127,12 +144,12 @@ Példa az info.nut tartalmára:
 \begin{cpp}
 class MyNewAI extends AIInfo 
 {
-	function GetAuthor()        { return "Newbie AI Writer"; }
-	function GetName()          { return "MyNewAI"; }
-	function GetDescription()   { return "An example AI"; }
-	function GetDate()          { return "2007-03-17"; }
-	function GetShortName()     { return "MYAI"; }
-	function CreateInstance()   { return "MyNewAI"; }
+  function GetAuthor()        { return "Newbie AI Writer"; }
+  function GetName()          { return "MyNewAI"; }
+  function GetDescription()   { return "An example AI"; }
+  function GetDate()          { return "2007-03-17"; }
+  function GetShortName()     { return "MYAI"; }
+  function CreateInstance()   { return "MyNewAI"; }
 }
 /* Tell the core we are an AI */
 RegisterAI(MyNewAI())
@@ -151,28 +168,28 @@ Ezek közül a függvények közül számunkra a Start() a legfontosabb, ugyanis
 \begin{cpp}
 class MyNewAI extends AIController
 {
-	function Start()
-	{
-		while (true) {
-			AILog.Info("Tell the console we are running");
-		}
-	}
-	function Save();
+  function Start()
+  {
+    while (true) {
+      AILog.Info("Tell the console we are running");
+  }
+}
+  function Save();
 }
 
 function MyNewAI::Save()
 {
-	return {};
+  return {};
 }
 \end{cpp}
 
-Ahogyan a példában látható, a MyNewAI osztályunk kiterjeszti az API AIController osztályát, ezáltal hozzáférést kap a beépített statikus függvényeinek használatára, mint a Start(), Save(), Load(). Az osztályon belül látható a Save függvény prototípusa, erre a Squirrel-en belül nincs szükség, de más programozási szabványban megszokott Itt megfigyelhető, hogy kapcsos zárójelek helyett pontosvessző zárja a parancsot. Az alsó Save() függvény a valódi függvénye a Save-nek, mivel ez az osztály deklariáción kívül helyezkedik el, meg kell adnunk melyik osztályhoz tartozik, ezt a dupla kettőspont előtt tesszük meg.
+Ahogyan a példában látható, a MyNewAI osztályunk leszármaztatja az API AIController osztályát, ezáltal hozzáférést kap a beépített statikus függvényeinek használatára, mint a Start(), Save(), Load(). Az osztályon belül látható a Save függvény prototípusa, erre a Squirrel-en belül nincs szükség, de más programozási szabványban megszokott Itt megfigyelhető, hogy kapcsos zárójelek helyett pontosvessző zárja a parancsot. Az alsó Save() függvény a valódi függvénye a Save-nek, mivel ez az osztály deklariáción kívül helyezkedik el, meg kell adnunk melyik osztályhoz tartozik, ezt a dupla kettőspont előtt tesszük meg.
 
 Ahhoz, hogy ez az AI megjelenjen játék közben, még a főmenüben az "MI/Játékszkript beállítások" menüpont alatt be tudjuk állítani hány ellenfelet szeretnénk a játékunkban. Valamint azt is rögzíteni tudjuk hogy az adott ellenfél melyik feltelepített AI legyen. Alapértelmezetten ez a beállítás véletlenszerű. Ha ezt beállítottuk, a játék indításakor a mi AI-unknak is meg kell jelennie a cégek között.
 
 \Section{Hasonló implementációk}
 
-Az OpenTTD játék kiegészítők nélküli verziójában nem található előre beépített gépi ellenfél, minden hasonló implementációt a játék közössége hozott létre. Ezek mind rendelkeznek a játék fórumán egy bejegyzéssel, valamint elérhetőek és letölthetőek a játékon belül, a fórumbejegyzésben megadott linkről, vagy pedig az ún. “BaNaNaS” repository-ból, ahol egyébként az összes a játékban elérhető szkriptek, fejlesztések, köztük a gépi ellenfelek listája megtalálható, mellette linkelve az adott tartalom fórumbejegyzését. A meglévő AI-ok közül sok már nincs aktív fejlesztés alatt. A legtöbb fejlesztése a 2000-es évek végén kezdődött, aztán a 2010-es évek végére be is fejeződött. 2008 és 2017 között évente rendeztek AI bajnokságot, ahol különböző körökben egymásnak vetették az indulókat, és teljesítmény alapján értékelték azokat.
+Az OpenTTD játék kiegészítők nélküli verziójában nem található előre beépített gépi ellenfél, minden hasonló implementációt a játék közössége hozott létre. Ezek mind rendelkeznek a játék fórumán egy bejegyzéssel, valamint elérhetőek és letölthetőek a játékon belül, a fórumbejegyzésben megadott linkről, vagy pedig az ún. “BaNaNaS” repository\ref{fig:bananas}-ból, ahol egyébként az összes a játékban elérhető szkriptek, fejlesztések, köztük a gépi ellenfelek listája megtalálható, mellette linkelve az adott tartalom fórumbejegyzését. A meglévő AI-ok közül sok már nincs aktív fejlesztés alatt. A legtöbb fejlesztése a 2000-es évek végén kezdődött, aztán a 2010-es évek végére be is fejeződött. 2008 és 2017 között évente rendeztek AI bajnokságot, ahol különböző körökben egymásnak vetették az indulókat, és teljesítmény alapján értékelték azokat.
 
 \begin{figure}
 	\centering
@@ -185,9 +202,14 @@ A különböző AI-ok mind különböző céllal jöttek létre. Vannak, amelyek
 
 Az AdmiralAI célja a játékhoz készített API legtöbb funkciójának kihasználása, valamint a változatos játékélmény biztosítása. Az utóbbit azzal próbálja meg elérni, hogy az AI minden szállítási módszert igyekszik alkalmazni. A mi szemszögünkből azért érdemes az AdmiralAI-al foglalkozni, mivel sok példát találhatunk a program forráskódjában, az API függvényeinek megvalósítására, valamint az AI felépítésére. A fájlszerkezet nagyon jól kitalált és felépített, minden összefüggő függvény, parancs, el van tagolva megfelelő osztályokba, mappákba, bár a kód értelmezése előzetes ismeretek nélkül elég nehézkes a kódhoz tartozó kommentekkel együtt is. AZ AI részletessége, és igényessége valamilyen szinten betudható adnak, hogy a készítője Thijs 'Yexo' Marinussen egyben az OpenTTD egyik fejlesztője, és az API fejlesztője is egyben. Az AI sok inspirációt tud adni a sajátunk fejlesztéséhez, de előzetes ismeretekre van szükségünk az API-ról a megfelelő szintű megértéshez.
 
-A PathZilla már sokkal egy érdekesebb megvalósítása egy AI-nak, mivel gráfelméleti algoritmusokat használ a városok összekötésére, és útvonalak megtervezésére. Először veszi a térképen található városok pozíciót, és ezek között létrehoz egy hálót Delaunay-háromszögeléses módszerrel. A kapott hálón megkeresi a legrövidebb utak fáját és a minimális feszítőfát és a kettő összemosásával kapott gráf alapján köti össze az érintett városokat. Ez a működés szemléltetve van az AI fórum bejegyzésében egy rövid képsorozat formájában.
+A PathZilla már sokkal egy érdekesebb megvalósítása egy AI-nak, mivel gráfelméleti algoritmusokat használ a városok összekötésére, és útvonalak megtervezésére\ref{fig:pathzilla}. Először veszi a térképen található városok pozíciót, és ezek között létrehoz egy hálót Delaunay-háromszögeléses módszerrel. A kapott hálón megkeresi a legrövidebb utak fáját és a minimális feszítőfát és a kettő összemosásával kapott gráf alapján köti össze az érintett városokat. Ez a működés szemléltetve van az AI fórum bejegyzésében egy rövid képsorozat formájában.
 
-((Algoritmus/háromszögelés módjának részletesebb bemutatása??))
+\begin{figure}
+	\centering
+	\includegraphics[scale=1]{images/pathzilla.png}
+	\caption{A PathZilla működésének szemléltetése.}
+	\label{fig:pathzilla}
+\end{figure}
 
 A TrAIns egy 2009-ben fejlesztett intelligencia, ami egy brazil egyetem két hallgatója által készült el, mint kutatói munka. A céljuk az volt a projekttel, hogy egy olyan AI-t készítsenek, ami hatékonyan tudjon vasútvonalakat építeni és használni, ami akkoriban nem volt gyakori az AI-ok között, vagy nem hatékony megvalósítással rendelkezett. A korábbiakkal szemben, amelyek csak közvetlen összekötöttek állomásokat és egy vonat használta a pályát oda-vissza, ez az AI úgy épített vasútvonalakat, mint ahogyan azt egy játékos is tenné. Több vágányos vonalakat is épített, így lehetővé tette hogy egy vonalon egyszerre több vonat is közlekedhessen, és ezek a vonalak keresztezni is tudják egymást. Ennek a segítségével képes egy célba több egymáshoz közeli forrásból árut elszállítani úgy, hogy a vonal nagy részét több vonat is használja egyszerre.
 

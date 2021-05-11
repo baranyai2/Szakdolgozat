@@ -8,7 +8,6 @@ class Line {
     buses = null;
     needed_buses = null;
     groupID = null
-    vehicles = null;
     busesToRemove = null;
 
     constructor() {
@@ -18,7 +17,6 @@ class Line {
         buses = [];
         needed_buses = 0;
         groupID = null;
-        vehicles = null;
         busesToRemove = AIVehicleList();
         busesToRemove.Clear();
     }

@@ -1,10 +1,8 @@
 class Planner {
     town_list = null;
-    date_town_acceptance_update  = 0;
 
     constructor() {
 		this.town_list     = null;
-		date_town_acceptance_update  = 0;
 	}
 
     function BuildTownList();
