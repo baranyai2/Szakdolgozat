@@ -49,7 +49,7 @@ Amit érdemes még itt definiálnunk az a pénzügyek kezelése, mivel ez közve
 
 Ahhoz hogy a játék elején, vagy későbbiekben is, a lehető legtöbb bevételt tudja generálni a program, fontos feladat a megfelelő városok kiválasztása az útvonal megépítéséhez. Ezt a saját stratégia implementációjaként határoztam meg. Egy felhasználó számára ésszerű döntés lehet a legnagyobb népességű városokat összekötni. Ami ténylegesen egy jó megközelítés azonban ez a következő problémákhoz vezethet. A két város túl messze is lehet egymástól ahhoz, hogy az útvonal megbízható legyen. Vagyis a hosszú útvonalon a buszok eltévedhetnek, megfelelő karbantartás nélkül sorozatosan lerobbanhatnak. Ezek miatt pedig romlik az útvonal bevétele és megbízhatósága. Tehát a városok választásánál figyelembe kell vennem azok távolságát is. A túl rövid útvonalakkal is problémákba ütközhet a program, ugyanis, ha túl közel van egymáshoz két megálló, a közte közlekedő buszok hamarabb odaérnek a megállókba, mielőtt a várakozó utasok száma elérné a busz kapacitását, így kihasználatlanul közlekedne az adott jármű.
 
-A városok közötti távolságot méréséhez manhattan távolságot használtam, mivel az elszállítási díj is ezt a távolságot veszi figyelembe. Ilyenkor az API AIMap osztályának DistanceManhattan(tile1,tile2) függvényét segítségül hívva tudtam ezeket az információkat megszerezni. Ahogyan azt az előző bekezdésben megállapítottam, a távolság akkor is hátrányos ha túl alacsony, valamint akkor is, ha túl magas. Ezért feltételezhető, hogy a minimum és maximum érték között található egy olyan távolság, ami az utasok elszállítása szempontjából ideális. Ahhoz, hogy ezt az értéket közelíteni tudjuk, létrehoztam egy algoritmust, aminek a paramétereinek az állításával a későbbiekben kísérleteket tudok tenni, hogy melyik beállítás lenne a legmegfelelőbb. Feltételezzük, hogy a kapott szám a [0,1] intervallumon helyezkedik el.
+A városok közötti távolságot méréséhez manhattan távolságot használtam, mivel az elszállítási díj is ezt a távolságot veszi figyelembe. Ilyenkor az API AIMap osztályának DistanceManhattan(tile1, tile2) függvényét segítségül hívva tudtam ezeket az információkat megszerezni. Ahogyan azt az előző bekezdésben megállapítottam, a távolság akkor is hátrányos ha túl alacsony, valamint akkor is, ha túl magas. Ezért feltételezhető, hogy a minimum és maximum érték között található egy olyan távolság, ami az utasok elszállítása szempontjából ideális. Ahhoz, hogy ezt az értéket közelíteni tudjuk, létrehoztam egy algoritmust, aminek a paramétereinek az állításával a későbbiekben kísérleteket tudok tenni, hogy melyik beállítás lenne a legmegfelelőbb. Feltételezzük, hogy a kapott szám a $[0, 1]$ intervallumon helyezkedik el.
 
 \begin{cpp}
 function Planner::DistanceMeasure(town1, town2)
@@ -81,7 +81,7 @@ function Planner::DistanceMeasure(town1, town2)
 
 A számítások elvégzése előtt, segédváltozókban megadom, az algoritmus fixált értékeit, valamint kiszámítom a korábban említett módon a városok távolságát. Ez algoritmus által kiszámított eredmény annál nagyobb lesz, minél közelebb van, az általunk ideálisnak tartott távolságtól.
 
-Másik probléma amibe a fejlesztés alatt ütköztem, hogy a legnagyobb lakosságú város valójában nem az a város, ahol egy megállóval a legtöbb lakost tudja lefedni a program, legyen az egy folyó, vagy túl dombos talaj miatt. A buszmegállók elhelyezéséről és az várható utasok számának becsléséről a későbbiekben részletesen lesz szó. A városok kiválasztásához jelen esetben csak a várható utasok számának becsült értékére van szükség. A térképen található minden város kombinációinak az eleméhez hozzárendeltem az adott városokban a legjobb buszmegállók pozícióinak várható utasszámának összegét. Ezt az értéket normalizáltan a [0,1] intervallumra, azáltal hogy az adott értéket elosztottam a várospárok közötti maximális értékkel.
+Másik probléma amibe a fejlesztés alatt ütköztem, hogy a legnagyobb lakosságú város valójában nem az a város, ahol egy megállóval a legtöbb lakost tudja lefedni a program, legyen az egy folyó, vagy túl dombos talaj miatt. A buszmegállók elhelyezéséről és az várható utasok számának becsléséről a későbbiekben részletesen lesz szó. A városok kiválasztásához jelen esetben csak a várható utasok számának becsült értékére van szükség. A térképen található minden város kombinációinak az eleméhez hozzárendeltem az adott városokban a legjobb buszmegállók pozícióinak várható utasszámának összegét. Ezt az értéket normalizáltan a $[0, 1]$ intervallumra azáltal, hogy az adott értéket elosztottam a várospárok közötti maximális értékkel.
 
 Kódrészlet a városok várható utasok számának kiszámításáról és lementéséről:
 \begin{cpp}
@@ -119,7 +119,7 @@ Az így kapott egyenletünk a következő:
 	$ e(i,j)=w_{a} \cdot a(i,j)+(1-w_{a}) \cdot f(d(i,j)) $
 \end{center}
 
-Ezt az egyenletet a korábban kiszámított változók segítségével implementáltam, és az eredményt egy tömbben tároltam, a várospár elemeivel és a hozzájuk tartozó e értékkel.
+Ezt az egyenletet a korábban kiszámított változók segítségével implementáltam, és az eredményt egy tömbben tároltam, a várospár elemeivel és a hozzájuk tartozó $e$ értékkel.
 
 \begin{cpp}
 local n = 0;
@@ -173,7 +173,7 @@ function TownManager::FindStationLocation(town_id) {
       tl.Valuate(AITile.GetSlope);
       tl.KeepValue(0);
       if (tl.Count()) {
-      	// Maradek mezok vizsgalata a varhato utasszamra
+      	// Maradék mezők vizsgálata a várható utasszámra
       }
     }
   }
@@ -189,11 +189,11 @@ Amennyiben a listában még vannak elemek, a program folytatja a szűrést olyan
 	\label{fig:lejtomegallo}
 \end{figure}
 
-A szűrések elvégzése után már csak olyan mezők maradtak amire a program tud megállót építeni, már csak az maradt hátra hogy meghatározza, hogy ezek közül melyikre lenne a legérdemesebb. Ennek az elősegítésére létezik az API-ban az AITile.GetCargoAcceptance() függvény, amelynek paraméterként átadom a mezőt amelyen az állomást építeni szeretném, az árú típusát, ami jelen esetben az utasok, valamint a megálló dimenziót, és a sugarat, amekkora területet lefed a buszmegálló. Ezzel a függvénnyel azonban egy problémába ütköztem, amit az API nem is közöl velünk. Ez a függvény mindig a maximális értéket adja vissza a lefedett területről, azaz, nem veszi figyelembe a más cégek, vagy a saját buszmegállóink lefedettségének ütközését, ahol a többszörösen lefedett területekről szolgáltatott utasok arányosan oszlanak el a megállók között.
+A szűrések elvégzése után már csak olyan mezők maradtak amire a program tud megállót építeni, már csak az maradt hátra hogy meghatározza, hogy ezek közül melyikre lenne a legérdemesebb. Ennek az elősegítésére létezik az API-ban az \textit{AITile.GetCargoAcceptance()} függvény, amelynek paraméterként átadom a mezőt amelyen az állomást építeni szeretném, az árú típusát, ami jelen esetben az utasok, valamint a megálló dimenziót, és a sugarat, amekkora területet lefed a buszmegálló. Ezzel a függvénnyel azonban egy problémába ütköztem, amit az API nem is közöl velünk. Ez a függvény mindig a maximális értéket adja vissza a lefedett területről, azaz, nem veszi figyelembe a más cégek, vagy a saját buszmegállóink lefedettségének ütközését, ahol a többszörösen lefedett területekről szolgáltatott utasok arányosan oszlanak el a megállók között.
 
 Ezért volt szükséges egy saját függvény létrehozása, ami pontosabban tudja megbecsülni az buszmegálló által lefedett utasok számát. Így lett létrehozva a GetStationAcceptance(tile), amely bemeneti értékként azt a mezőt várja, ahova a buszmegállót építeni szeretnénk.
 
-Ez a függvény először lekérdezi az adott mező körülötti területet amit szükséges megvizsgálnia annak érdekében hogy van e átfedés a megállók között. Mivel a buszmegállók csak egy mezőt foglalnak el, és 7x7-es területet fednek le, ahol a terület közepén helyezkedik el az állomás, így az a terület amit vizsgálnunk kell az a megálló körül vett, legalább 6 sugarú terület, ugyanis, ha még az állomástól számított 6. mezőn van egy állomás, akkor legalább egy oszlopban átfedés lesz, azonban ha már a 7. van azt nem érdemes azt megvizsgálni, mivel pont szomszédos mezőket fednek\ref{fig:megallo} csak le. Abban az esetben, ha a program nem talál másik állomást a vizsgált területen belül, egyszerű dolga van, mivel tudjuk használni az API által szolgáltatott függvényt. Amennyiben talált állomást, a megoldás kicsit bonyolultabb lesz. Először is létrehoztam egy listát amiben eltároltam az általunk lerakandó megálló által lefedett mezőket és minden mező értékét 1-re állítottam, aztán egy segédlistában pedig eltároltam azokat a mezőket, amelyek egy adott már meglévő megálló által le vannak fedve. Végigiterálva az általam lerakandó állomás által lefedett mezőkön, a program összehasonlítja, hogy az adott mező szerepel-e a segédlistában. Amennyiben igen, a List() értékmezőjében lévő értéket növelem egyel. Ha végigiterált a program az összes elemen és összes megállón, akkor a lista segítségével ki tudja számítani a valódi utasok számát. Lekérdezem a GetCargoAcceptance() segítségével minden egyes mezőre jutó utasszámot amit elosztok az adott elem értékével, ami 1, ha nem volt átfedés más állomással, így az adott érték az alapértelmezett marad, azonban ha volt átfedés, a kapott eredmény annyiad részét kapom eredményól, ahány megállóval van átfedésben a mező. Végül pedig visszaadom a kapott értékek összegét.
+Ez a függvény először lekérdezi az adott mező körülötti területet amit szükséges megvizsgálnia annak érdekében hogy van e átfedés a megállók között. Mivel a buszmegállók csak egy mezőt foglalnak el, és $7 \times 7$-es területet fednek le, ahol a terület közepén helyezkedik el az állomás, így az a terület amit vizsgálnunk kell az a megálló körül vett, legalább 6 sugarú terület, ugyanis, ha még az állomástól számított 6. mezőn van egy állomás, akkor legalább egy oszlopban átfedés lesz, azonban ha már a 7. van azt nem érdemes azt megvizsgálni, mivel pont szomszédos mezőket fednek\ref{fig:megallo} csak le. Abban az esetben, ha a program nem talál másik állomást a vizsgált területen belül, egyszerű dolga van, mivel tudjuk használni az API által szolgáltatott függvényt. Amennyiben talált állomást, a megoldás kicsit bonyolultabb lesz. Először is létrehoztam egy listát amiben eltároltam az általunk lerakandó megálló által lefedett mezőket és minden mező értékét 1-re állítottam, aztán egy segédlistában pedig eltároltam azokat a mezőket, amelyek egy adott már meglévő megálló által le vannak fedve. Végigiterálva az általam lerakandó állomás által lefedett mezőkön, a program összehasonlítja, hogy az adott mező szerepel-e a segédlistában. Amennyiben igen, a List() értékmezőjében lévő értéket növelem egyel. Ha végigiterált a program az összes elemen és összes megállón, akkor a lista segítségével ki tudja számítani a valódi utasok számát. Lekérdezem a GetCargoAcceptance() segítségével minden egyes mezőre jutó utasszámot amit elosztok az adott elem értékével, ami 1, ha nem volt átfedés más állomással, így az adott érték az alapértelmezett marad, azonban ha volt átfedés, a kapott eredmény annyiad részét kapom eredményól, ahány megállóval van átfedésben a mező. Végül pedig visszaadom a kapott értékek összegét.
 
 \begin{figure}
 	\centering
@@ -261,7 +261,7 @@ Az útvonalak kezeléséhez szükségem van egy osztályra\ref{fig:line}, amelyn
 \begin{figure}
 	\centering
 	\includegraphics[scale=0.5]{images/line.png}
-	\caption{A Line osztály felépítése.}
+	\caption{A \texttt{Line} osztály felépítése.}
 	\label{fig:line}
 \end{figure}
 
@@ -335,14 +335,14 @@ Ha sikeresen döntésre jutott az AI a busz modellről, már csak meg kell vás�
 
 Miután rendelkezem minden elemmel ami a vonal működéséhez szükséges, ide értve a buszmegállókat, az úthálózatot a városok között, a garázst és a buszokat, az utolsó feladat a parancsok kiosztása a buszoknak, és az elindításuk. Ezt a feladatot a SetupBus(bus) függvény látja el, ami hozzáadja egy csoporthoz a járművet, amely vonalanként különböző aztán a vonal változói között található buszmegállókba, és a vonalhoz tartozó garázs-t kiadja parancsként. A parancsoknak több típusa van, ha nem határozunk meg kifejezetten egyet, az alapértelmezett parancs a "lerakodás ha van mit, és felrakodás ha van mit" az állomások esetén. Egy garázs parancs esetén ez "karbantartás a garázsban, ha szükséges" parancsot jelenti. Ennek a függvénynek a lefutása után a vonal életbe lép\ref{fig:vonal} és aktívan látogatja a hozzá tartozó megállókat a buszaival.
 
-\begin{figure}
+\begin{figure}[h!]
 	\centering
 	\includegraphics[scale=0.45]{images/vonal.png}
 	\caption{Egy aktív vonal buszmegállókkal, garázzsal és buszokkal.}
 	\label{fig:vonal}
 \end{figure}
 
-Az utolsó ide tartozó függvény a ManageBuses(). Erre a függvényre azért van szükség, hogy a buszokat amelyeket nem sikerül az első folyamatban megvásárolni, később újra tudja próbálni a program. Valamint a folyamat időközönként újra ellenőrzi a szükséges buszok számát és összehasonlítja a jelenleg futó buszok számával.Végső soron pedig kezeli az elöregedő buszok lecserélésének folyamatát.
+Az utolsó ide tartozó függvény a \texttt{ManageBuses()}. Erre a függvényre azért van szükség, hogy a buszokat amelyeket nem sikerül az első folyamatban megvásárolni, később újra tudja próbálni a program. Valamint a folyamat időközönként újra ellenőrzi a szükséges buszok számát és összehasonlítja a jelenleg futó buszok számával.Végső soron pedig kezeli az elöregedő buszok lecserélésének folyamatát.
 
 A hiányzó buszok pótlása egy egyszerű feladat, csak ellenőriznie kell a programnak, hogy van e szükség újabb buszok vásárlására és ha igen, a korábban bemutatott függvény segítségével pótolni tudja a ezeket. Amennyiben ismételten nem lenne elég pénze a cégnek a buszokra, az értéket megfelelően változtatja a továbbra is hiányzó buszok számára.
 
