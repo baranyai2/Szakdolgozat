@@ -77,6 +77,7 @@ function DebacleAI::Start()
       i = 0;
     }
     i++;
+    PayBackMoney();
   }
 }
 

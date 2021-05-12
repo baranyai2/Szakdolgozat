@@ -160,7 +160,7 @@ function TownManager::BuildStation(tile, town_id)
     }
     if (demolished) {
       for(local tile2 = adjacentTiles.Begin(); adjacentTiles.HasNext() && !built; tile2 = adjacentTiles.Next()) {
-        if(AIRoad.IsRoadTile(tile2) ) {
+        if (AIRoad.IsRoadTile(tile2)) {
           builder.RoadBuilder(tile2, tile);
           built = AIRoad.BuildRoadStation(tile, tile2, AIRoad.ROADVEHTYPE_BUS, AIStation.STATION_NEW);
           builder.RoadBuilder(tile2, AITown.GetLocation(town_id));
