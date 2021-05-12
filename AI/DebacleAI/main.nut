@@ -53,7 +53,7 @@ function DebacleAI::Start()
     if (i%200 == 0) {
       local hasMoney = GetMoney(50000);
       if (hasMoney && retries < 10) {
-        towns = planner.FindTownsToBuild();
+        towns = planner.FindTownsToBuild(retries);
         local line = Line();
         if (towns != null) {
           lineCreated = line.CreateNewLine(towns);

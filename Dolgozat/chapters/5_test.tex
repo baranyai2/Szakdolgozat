@@ -2,11 +2,11 @@
 
 \Section{Felhasználói kézikönyv}
 
-Ahhoz hogy az AI ellen tudjunk játszani, először telepítenünk kell az OpenTTD-t. Ha ez megtörtént, az AI fájljait a játék mappájában lévő "ai" nevű mappába kell bemásolnunk. Ennek az útvonala alapértelmezett telepítési beállítások mellett Windows-on "C:\textbackslash Program Files\textbackslash OpenTTD\textbackslash ai". Miután bemásoltuk az AI mappáját a játékéba, az elindítást követően az "MI/Játékszkript beállítások" menüpontban\ref{fig:mibeall} van lehetőség gépi ellenfél hozzáadására, az ilyenkor megnyíló helyre be lehet állítani a DebacleAI-t mint ellenfél. Ezt követően egy új játék megkezdésekor az AI automatikusan el fog indulni.
+Ahhoz hogy az AI ellen tudjunk játszani, először telepítenünk kell az OpenTTD-t. Ha ez megtörtént, az AI fájljait a játék mappájában lévő "\textit{ai}" nevű mappába kell bemásolnunk. Ennek az útvonala alapértelmezett telepítési beállítások mellett Windows-on "\texttt{C:\textbackslash Program Files\textbackslash OpenTTD\textbackslash ai}". Miután bemásoltuk az AI mappáját a játékéba, az elindítást követően az "MI/Játékszkript beállítások" menüpontban van lehetőség gépi ellenfél hozzáadására, az ilyenkor megnyíló helyre be lehet állítani a DebacleAI-t mint ellenfél. Ezt követően egy új játék megkezdésekor az AI automatikusan el fog indulni.
 
 Ezek után egyéb figyelmet az AI nem igényel, a felhasználó szabadon játszhat a játékkal, miközben az AI is a korábban bemutatott módon fogja játszani a játékot mint egy rivális cég a pályánkon.
 
-Abban az esetben ha az AI futás idejű problémába ütközne, a játék értesíteni fogja erről a felhasználót. Ebben az esetben a nyomkövetés ablakában\ref{fig:console} lévő MI újratöltése gombbal van lehetőségünk újraindítani az AI-t. Ennek az ablaknak magától is meg kellene nyílnia, de abban az esetben ha ez nem történne meg, a felső eszközsáv utolsó gombját (kérdőjel egy kék körben) lenyomva tartja tudjuk elérni az "MI/Játékszkript nyomkövetés" pontban.
+Abban az esetben ha az AI futás idejű problémába ütközne, a játék értesíteni fogja erről a felhasználót. Ebben az esetben a nyomkövetés ablakában lévő MI újratöltése gombbal van lehetőségünk újraindítani az AI-t. Ennek az ablaknak magától is meg kellene nyílnia, de abban az esetben ha ez nem történne meg, a felső eszközsáv utolsó gombját (kérdőjel egy kék körben) lenyomva tartja tudjuk elérni az "MI/Játékszkript nyomkövetés" pontban.
 
 \Section{Megfigyelések}
 
@@ -24,7 +24,7 @@ Ezzel szemben más AI-oknak sokkal kifejlettebbek. Az általános AI-ok minden s
 
 Ebből a lényeges információ amire következtethetünk, hogy függetlenül a fejlesztési időtől vagy a tesztelők számától, még a legrégebbi és legátfogóbb AI-okban is jelentkezhetnek problémák. Ezeket a megszokott módon a fórumbejegyzésekben szokták megtenni, megfigyelhető, hogy 10 évvel ezelőtt fejlesztett AI-ok bejegyzéseiben még a tavalyi év folyamán is érkeztek bejelentések hibákról. Tekintve, hogy a játék környezete nagyon dinamikus, és az AI megvalósításának problémája mennyire komplex, nehéz teljesen ideális, vagy hibátlan állapotot elérni.
 
-Ahogyan az ábrán\ref{fig:atlag} megfigyelhető, egy átlagos futtatási szituációban az AI jó eredményeket képes produkálni. Itt látható, hogy a 10 éves folyamat alatt:
+Ahogyan \aref{fig:atlag} ábrán megfigyelhető, egy átlagos futtatási szituációban az AI jó eredményeket képes produkálni. Itt látható, hogy a 10 éves folyamat alatt:
 
 \begin{itemize}
 	\item 152 jármű zárta profittal az előző évet,
@@ -41,14 +41,24 @@ Ahogyan az ábrán\ref{fig:atlag} megfigyelhető, egy átlagos futtatási szitu�
 	\label{fig:atlag}
 \end{figure}
 
-\Section{Alap}
+\Section{Tesztelési körülmények}
 
-A fejezetben be kell mutatni, hogy az elkészült alkalmazás hogyan használható.
-(Az, hogy hogyan kell, hogy működjön, és hogy hogy lett elkészítve, az előző fejezetekben már megtörtént.)
+A következő részekben az AI-ok teljesítményének az összehasonlítását fogom bemutatni. Ehhez az AI-okat egy játékkörnyezetben futtattam 10 évig. Ezekben a játékokban, a pályagenerálás beállításai mindig ugyan azok voltak. Ezek pedig az alábbiak:
 
-Jellemzően az alábbi dolgok kerülhetnek ide.
 \begin{itemize}
-\item Tesztfuttatások. Le lehet írni a futási időket, memória és tárigényt.
-\item Felhasználói kézikönyv jellegű leírás. Kifejezetten a végfelhasználó szempontjából lehet azt bemutatni, hogy mit hogy lehet majd használni.
-\item Kutatás kapcsán ide főként táblázatok, görbék és egyéb részletes összesítések kerülhetnek.
+	\item Térkép mérete: 256x256
+	\item Térkép generátor: TerraGenesis
+	\item Várossűrűség: Normál
+	\item Gazdasági épületek száma: Normál
+	\item Tereptípus: Sík
+	\item Tengerszint: Nagyon alacsony
+	\item Simaság: Sima
+	\item Folyók: Közepes
+	\item Dátum: 1950 Jan. 1.
+	\item A térkép határa minden esetben víz
 \end{itemize}
+
+Az olyan AI-ok esetében, ahol a megvalósítás általános, és többféle szállítási módszert is tudnak használni, a működést lekorlátoztam buszok használatára. (A SimpleAI esetében erre nem volt lehetőség, azt csak közúti járművekre lehet korlátozni) Ennek az volt az oka, hogy összehasonlítás szempontjából, az olyan AI-okkal szemben amelyek csak utasokat szállítanak, vagy csak közúti járműveket használnak, sokkal nagyobb bevétel generálására lettek volna képesek a piaci rés kihasználásával.
+
+\Section{Önálló tesztelés}
+

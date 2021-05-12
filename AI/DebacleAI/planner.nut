@@ -6,7 +6,7 @@ class Planner {
 	}
 
     function BuildTownList();
-    function FindTownsToBuild();
+    function FindTownsToBuild(index);
     function GetMaxAcceptance();
     function DistanceMeasure(town1, town2);
 }
@@ -65,7 +65,7 @@ function Planner::DistanceMeasure(town1, town2)
     }
 }
 
-function Planner::FindTownsToBuild()
+function Planner::FindTownsToBuild(index)
 {
     town_list.Clear();
     BuildTownList();
@@ -106,8 +106,8 @@ function Planner::FindTownsToBuild()
         }
     }
 
-    local town = towneArray[0][0];
-    local town2 = towneArray[0][1];
+    local town = towneArray[index][0];
+    local town2 = towneArray[index][1];
 
     if (town != null && town2 != null) {
         return [town, town2];
