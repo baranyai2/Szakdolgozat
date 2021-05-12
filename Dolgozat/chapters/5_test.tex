@@ -1,5 +1,48 @@
 \Chapter{Tesztelés}
 
+\Section{Felhasználói kézikönyv}
+
+Ahhoz hogy az AI ellen tudjunk játszani, először telepítenünk kell az OpenTTD-t. Ha ez megtörtént, az AI fájljait a játék mappájában lévő "ai" nevű mappába kell bemásolnunk. Ennek az útvonala alapértelmezett telepítési beállítások mellett Windows-on "C:\textbackslash Program Files\textbackslash OpenTTD\textbackslash ai". Miután bemásoltuk az AI mappáját a játékéba, az elindítást követően az "MI/Játékszkript beállítások" menüpontban\ref{fig:mibeall} van lehetőség gépi ellenfél hozzáadására, az ilyenkor megnyíló helyre be lehet állítani a DebacleAI-t mint ellenfél. Ezt követően egy új játék megkezdésekor az AI automatikusan el fog indulni.
+
+Ezek után egyéb figyelmet az AI nem igényel, a felhasználó szabadon játszhat a játékkal, miközben az AI is a korábban bemutatott módon fogja játszani a játékot mint egy rivális cég a pályánkon.
+
+Abban az esetben ha az AI futás idejű problémába ütközne, a játék értesíteni fogja erről a felhasználót. Ebben az esetben a nyomkövetés ablakában\ref{fig:console} lévő MI újratöltése gombbal van lehetőségünk újraindítani az AI-t. Ennek az ablaknak magától is meg kellene nyílnia, de abban az esetben ha ez nem történne meg, a felső eszközsáv utolsó gombját (kérdőjel egy kék körben) lenyomva tartja tudjuk elérni az "MI/Játékszkript nyomkövetés" pontban.
+
+\Section{Megfigyelések}
+
+Már a rövid fejlesztési folyamat közben is észrevehető volt, hogy az AI képes a játékmenet fenntartására, és nyereség generálására is, tehát ebből a szempontból a saját stratégia megvalósítása sikeresnek nevezhető. Ugyanakkor, az AI csak utasok szállításával foglalkozik buszok segítségével, a többi szállítási lehetőség egyáltalán nincs lefedve az AI által.
+
+Ezzel szemben más AI-oknak sokkal kifejlettebbek. Az általános AI-ok minden szállítási lehetőséggel, és sokkal stabilabban futnak, kevesebb hibába ütköznek és több profitot is képesek generálni. Ez annak is betudható, hogy a legtöbb AI éveken keresztül haladt át a fejlesztési folyamaton és ennél még hosszabb tesztelési fázison. Ami közben és után, elérhető volt a BaNaNaS repository részeként, így játékosok százai tudták kipróbálni őket, és visszajelzést adni adott hibákról, problémákról vagy ötletekkel hozzájárulni a folyamathoz. A fórumbejegyzéseket olvasva megállapítható, hogy a problémák többsége ami felléphet a játék folyamán a következőek: 
+
+\begin{itemize}
+	\item Útvonal/hálózat tervezéssel kapcsolatos problémák
+	\item Útvonalkereső hatékonyságához köthető hibák
+	\item Adott út/vasúthálózatok túlterhelése járművekkel
+	\item Pénzügyi problémákkal kapcsolatos észrevételek
+	\item Létező infrastruktúra újrahasznosításával kapcsolatos problémák
+\end{itemize}
+
+Ebből a lényeges információ amire következtethetünk, hogy függetlenül a fejlesztési időtől vagy a tesztelők számától, még a legrégebbi és legátfogóbb AI-okban is jelentkezhetnek problémák. Ezeket a megszokott módon a fórumbejegyzésekben szokták megtenni, megfigyelhető, hogy 10 évvel ezelőtt fejlesztett AI-ok bejegyzéseiben még a tavalyi év folyamán is érkeztek bejelentések hibákról. Tekintve, hogy a játék környezete nagyon dinamikus, és az AI megvalósításának problémája mennyire komplex, nehéz teljesen ideális, vagy hibátlan állapotot elérni.
+
+Ahogyan az ábrán\ref{fig:atlag} megfigyelhető, egy átlagos futtatási szituációban az AI jó eredményeket képes produkálni. Itt látható, hogy a 10 éves folyamat alatt:
+
+\begin{itemize}
+	\item 152 jármű zárta profittal az előző évet,
+	\item A közelmúltban 67 állomást szolgált ki,
+	\item Az előző negyedév profitja 74 százalékkal nagyobb az elmúlt 12 negyedév maximális profitjánál,
+	\item 22.147 utast szállítottunk el ez előző negyedévben,
+	\item Az felvett kölcsön mennyisége 0.
+\end{itemize}
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.7]{images/atlag.png}
+	\caption{A DebacleAI kiértékelése egy 10 éves játékfolyamat után.}
+	\label{fig:atlag}
+\end{figure}
+
+\Section{Alap}
+
 A fejezetben be kell mutatni, hogy az elkészült alkalmazás hogyan használható.
 (Az, hogy hogyan kell, hogy működjön, és hogy hogy lett elkészítve, az előző fejezetekben már megtörtént.)
 
