@@ -62,3 +62,107 @@ Az olyan AI-ok esetében, ahol a megvalósítás általános, és többféle sz�
 
 \Section{Önálló tesztelés}
 
+A korábban felsorolt tesztkörülmények között tesztelve a DebacleAI-t csak önmagában, rivális cégek nélkül \aref{tab:debacle20} táblázatban látható eredményeket volt képes produkálni egy 20 éves tesztfuttatás alatt.
+
+Ez a teszt megerősítette a korábban mért teljesítményét az AI-nak, ugyanis hasonló teljesítménnyel rendelkezik a tesztkörülmények alatt is, mint amivel a fejlesztés folyamata alatt rendelkezett.
+
+\begin{table}
+	\centering
+	\begin{tabular}{|c || c | c | c | c |} 
+		\hline
+		\texttt{Év:} & 1955 & 1960 & 1965 & 1970 \\ 
+		\hline\hline
+		Cég kora: & 5 év & 10 év & 15 év & 20 év  \\ 
+		\hline
+		Cég értéke: &  \pounds 351.896 & \pounds 520.168  & \pounds 1.073.358 & \pounds 2.271.429\\
+		\hline
+		Közúti járművek bevétele(előző év) & +\pounds 177.296 & +\pounds 227.190  & +\pounds 367.574 & +\pounds 707.739 \\
+		\hline
+		Járművek száma(ebből nyereséges) & 62/95 & 99/149 & 126/188 & 208/298 \\
+		\hline
+		Állomások száma & 38 & 58 & 62 & 108 \\ 
+		\hline
+		Elszállított utasok száma: & 8.818 & 11.816 & 18.740 & 35.416  \\
+		\hline
+		Teljesítmény értékelés: & 235 & 314 & 476 & 760 \\ 
+		\hline
+	\end{tabular}
+	\caption{DebacleAI futtatásának eredményei 20 éven keresztül a tesztkörülmények között}
+	\label{tab:debacle20} 
+\end{table}
+
+\Section{Rivális céggel való összevetés}
+
+Ebben a szakaszban az AdmiralAI-t választottam mint rivális cég. Ennek az oka az volt, hogy az AdmiralAI az egyik leggyakoribban használt AI a játékon belül, valamint annak ellenére, hogy az AI megvalósítása általános, a beállításai módosításával elérhető, hogy csak buszokat használjon. Ennek az összevetésnek az eredményei \aref{tab:debvsadm} táblázatban láthatóak.
+
+Ahogyan a táblázatból is leolvasható, a DebacleAI nyereségben, és ősszesített pontok alapján is az AdmiralAI mögött helyezkedik el. Azonban ez korántsem meglepő megállapítás. A két AI fejlesztési idejének különbségéhez képest, a teljesítménybeli eltérések egészen alacsonyak. A tesztfolyamat közben észrevehető volt, hogy a DebacleAI pár év lemaradással, ugyan azt a tendenciát követte a bevétel szempontjából, mint az AdmiralAI. A DebacleAI a város és buszmegálló keresése közben, mindig a legideálisabbat igyekszik megtalálni, és próbálja minimalizálni a rivális cégekkel való osztozkodást az utasokon. Emiatt többször is előfordult a játék állapotát figyelve, hogy az AdmiralAI terjeszkedése gyorsabb volt, így kizárta egy adott városba való terjeszkedését a DebacleAI-nak. Az tesztfolyamat utolsó 6 évében a vállalat értékének alakulását \aref{fig:dvafug} ábrán láthatjuk.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.9]{images/valert.png}
+	\caption{A DebacleAI(Rózsaszín) és AdmiralAI(Kék) Cég értékét ábrázoló grafikon az utolsó 20 negyedévre nézve.}
+	\label{fig:dvafug}
+\end{figure}
+
+\begin{landscape}
+\begin{table}
+	\centering
+	\begin{tabular}{|c || c | c | c | c | c | c |} 
+		\hline
+		AI: & \texttt{DebacleAI} & \texttt{AdmiralAI} & \texttt{DebacleAI} & \texttt{AdmiralAI} & \texttt{DebacleAI} & \texttt{AdmiralAI} \\
+		\hline
+		\texttt{Év:} & \multicolumn{2}{c|}{1955} & \multicolumn{2}{c|}{1960} & \multicolumn{2}{c|}{1965} \\
+		\hline\hline
+		\hline
+		Cég kora: & \multicolumn{2}{c|}{5 év} & \multicolumn{2}{c|}{10 év} & \multicolumn{2}{c|}{15 év} \\ 
+		\hline
+		Cég értéke: &  \pounds 187.568 & \pounds 375163  & \pounds 681.090 & \pounds 1.090.532 & \pounds 1.586.468 & \pounds 2.537.945 \\
+		\hline
+		Közúti járművek bevétele(előző év) & +\pounds 142.086 & +\pounds 174.440  & +\pounds 284.796 & +\pounds 376.991 & +\pounds 480.880 & +\pounds 817.567 \\
+		\hline
+		Járművek száma(ebből nyereséges) & 51/76 & 85/96 & 121/154 & 174/217 & 200/298 & 376/440 \\
+		\hline
+		Állomások száma & 26 & 18 & 48 & 44 & 92 & 71 \\ 
+		\hline
+		Elszállított utasok száma: & 7.673 & 8.477 & 13.168 & 14.194 & 23.114 & 27.620  \\
+		\hline
+		Teljesítmény értékelés: & 192 & 237 & 374 & 417 & 549 & 618 \\ 
+		\hline
+	\end{tabular}
+	\caption{DebacleAI és AdmiralAI teljesítménye 15 éves tesztfuttatás alatt.}
+	\label{tab:debvsadm} 
+\end{table}
+\end{landscape}
+
+\Section{Városkereső algoritmus paramétere}
+
+Az előző fejezetben bemutatott városkereső algoritmus rendelkezik egy súly paraméterrel. Ennek az állításával tudjuk meghatározni, hogy a városok távolságát, vagy a rendelkezésre álló utasok számát szeretnénk inkább figyelembe venni.  Ezt a paramétert a $[0,1]$ intervallum között tudjuk állítani. A tesztesetek pedig a $[0.1,0.9]$ intervallumon végeztem el $0.1$-es lépésközzel. Ezeknek a mérésnek az adait \aref{fig:meresek} ábrán lehet látni. A cég bevételén kívül megvizsgáltam még a megépített utak és a buszmegállók számát is, ezek \aref{fig:utak} és \aref{fig:wmegallok} ábrákon láthatóak.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.6]{images/wmeresek.png}
+	\caption{A DebacleAI bevételének változása a $w$ értékétől függően.}
+	\label{fig:meresek}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=1]{images/wutak.png}
+	\caption{A DebacleAI által épített utak mennyiségének változása a $w$ értékétől függően.}
+	\label{fig:utak}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=1]{images/wallomas.png}
+	\caption{A DebacleAI által épített buszmegállók mennyiségének változása a $w$ értékétől függően.}
+	\label{fig:wmegallok}
+\end{figure}
+
+A tesztelés folyamata közbeni észrevételek:
+\begin{itemize}
+	\item Minél kisebb a $w$ értéke, annál kevesebb utat épít az AI, mivel a távolságot jobban figyelembe veszi mint az utasok számát. A $0.5-0.6$os értéknél csúcsosodik, aztán tovább növelve a $w$-t ismét csökkenni kezd az utak száma. Ez amiatt van, mivel a magas $w$ értékeknél, az algoritmus nem figyelte annyira az adott városok távolságát, emiatt messzebbi városokat is megpróbált összekötni. Azonban az útvonalkereső nem tudta a lépést tartani ezzel, és egyes útvonalak kiépítése hónapokba telt. Feltételezem, hogy ha gyorsabban meg tudta volna keresni az útvonalat az algoritmus, a megépített utak száma a nagyobb $w$ értékeknél továbbra is egyre nagyobb lett volna.
+	\item Az előző pontban említett messzi városok összekötése miatt történt az is, hogy a magasabb $w$ értékeknél kevesebb megálló került építésre, azaz kevesebb útvonal lett létrehozva.
+	\item Az évek haladtával észrevehető, hogy azonos $w$ értéknél egymást követő éveken keresztül ugyan akkora a bevétel. Ezt a tesztelés közben a nyomkövető ablakot vizsgálva, annak tudható be, hogy amikor a cég eléri a maximális kölcsön méretet és várnia kell, amíg elegendő pénzmennyiség összegyűlik egy új vonal megépítéséhez, miközben a buszokat is kezeli.
+	\item A nagyobb $w$ értékek esetében az első években a cég bevétele nagyobb, azonban a későbbiekben lemarad az alacsonyabbakéhoz képest.
+\end{itemize}

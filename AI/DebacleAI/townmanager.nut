@@ -62,7 +62,7 @@ function TownManager::FindStationLocation(town_id)
           }
         }
         tl.Sort(AIList.SORT_BY_VALUE, AIList.SORT_DESCENDING);
-        if (tl.GetValue(tl.Begin()) > 15) {
+        if (tl.GetValue(tl.Begin()) > 5) {
           station_loc = tl.Begin();
         } else {
           AILog.Info("No station location worth exploring " + tl.GetValue(tl.Begin()));

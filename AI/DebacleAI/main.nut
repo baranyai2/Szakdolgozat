@@ -59,6 +59,7 @@ function DebacleAI::Start()
           lineCreated = line.CreateNewLine(towns);
           if (!lineCreated) {
             AILog.Info("Line creation failed");
+            retries++;
           } else {
             AILog.Info("Line created");
             lines.append(line);
