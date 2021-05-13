@@ -15,6 +15,8 @@ Az első feladat az különböző feladatok széttagolása. Ezt az alábbi kül�
 	\item Pénzügyek kezelése
 \end{itemize}
 
+Az osztályokról és azok felépítéséről, funkciójukról a továbbiakban részletesen szó lesz. Ezek szerkezetét \aref{fig:line} ábrán lehet megtekinteni.
+
 Mindezeknek a feladatoknak az ellátása több kisebb szintű problémához vezet amiket az implementáció során külön-külön oldottam meg, ötletet merítve a kezdetleges próbálkozásokból és korábbi implementációkból.
 
 Ahhoz hogy az AI a célját elérje és városok között utasokat tudjon szállítani buszok segítségével szüksége van az összes többi komponens megfelelő működésére. Az AI koordinálása értjük azt a pontot ahol ez megtörténik, és a többi alrész eredménye itt összegződik és valósul meg. Itt kell kezelnie a programnak az esetlegesen jelentkező problémákat is, ugyanis ha már elkezdett kiépíteni egy útvonalat, de annak befejezése nem valósult meg, akkor vagy vissza kell vonnia az addig befejezett elemeket, vagy pedig újrapróbálni a folyamatot.
@@ -36,7 +38,7 @@ A programkódunk main függvényében történik meg a hívás ami elindítja az
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.5]{images/folyamat.png}
+	\includegraphics[width=\textwidth]{images/folyamat.png}
 	\caption{Az AI működésének folyamata}
 	\label{fig:folyamat}
 \end{figure}
@@ -135,7 +137,7 @@ for (local i = 0; i < townArray.len(); i++) {
 }
 \end{cpp}
 
-Itt látható, hogy minden várospárra elvégződik a számítás, meghívódik a bemutatott távolságfüggvény, ami az egyenletben $f(d(i,j))$ képpen szerepelt. A \texttt{GetMaxAcceptance()} függvény egy egy segédváltozót határoz meg amire a várható utasok számának normalizálása miatt van szükség, ez az érték a maximuma lesz a várospárok között lévő várható utasoknak. Az eredményül kapott \texttt{towneArray} minden eleme tehát egy várospár, és a hozzá tartozó $e$ érték. Ennek a tömbnek az egyszerű buborékrendezése után, kaptam egy rendezett listát a terjeszkedésre ideális városokról.
+Itt látható, hogy minden várospárra elvégződik a számítás, meghívódik a bemutatott távolságfüggvény, ami az egyenletben $f(d(i,j))$ képpen szerepelt. \\ A \texttt{GetMaxAcceptance()} függvény egy egy segédváltozót határoz meg amire a várható utasok számának normalizálása miatt van szükség, ez az érték a maximuma lesz a várospárok között lévő várható utasoknak. Az eredményül kapott \texttt{towneArray} minden eleme tehát egy várospár, és a hozzá tartozó $e$ érték. Ennek a tömbnek az egyszerű buborékrendezése után, kaptam egy rendezett listát a terjeszkedésre ideális városokról.
 
 Az egyenlet paramétereinek változtatásáról, és annak az eredményeiről a tesztelés fejezetben lesz részletesebben szó.
 
@@ -147,7 +149,7 @@ Az egyik ilyen függvény amely meghatározza hogy egy városon belül melyik me
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.4]{images/megallok.png}
+	\includegraphics[width=\textwidth]{images/megallok.png}
 	\caption{Buszmegállók típusai}
 	\label{fig:megallok}
 \end{figure}
@@ -184,7 +186,7 @@ Amennyiben a listában még vannak elemek, a program folytatja a szűrést olyan
 
 \begin{figure} [h!]
 	\centering
-	\includegraphics[scale=0.8]{images/lejtomegallo.png}
+	\includegraphics[width=\textwidth]{images/lejtomegallo.png}
 	\caption{Buszmegálló út mellett, de lejtőn, a megálló nem csatlakozik az úthálózathoz.}
 	\label{fig:lejtomegallo}
 \end{figure}
@@ -193,11 +195,11 @@ A szűrések elvégzése után már csak olyan mezők maradtak amire a program t
 
 Ezért volt szükséges egy saját függvény létrehozása, ami pontosabban tudja megbecsülni az buszmegálló által lefedett utasok számát. Így lett létrehozva a \\ \texttt{GetStationAcceptance(tile)}, amely bemeneti értékként azt a mezőt várja, ahova a buszmegállót építeni szeretnénk.
 
-Ez a függvény először lekérdezi az adott mező körülötti területet amit szükséges megvizsgálnia annak érdekében hogy van e átfedés a megállók között. Mivel a buszmegállók csak egy mezőt foglalnak el, és $7 \times 7$-es területet fednek le, ahol a terület közepén helyezkedik el az állomás. Így az a terület amit vizsgálnunk kell az a megálló körül vett, legalább 6 sugarú terület, ugyanis, ha még az állomástól számított 6. mezőn van egy állomás, akkor legalább egy oszlopban átfedés lesz. Azonban ha már a 7. van azt nem érdemes azt megvizsgálni, mivel pont szomszédos mezőket fednek csak le. A buszmegállók által lefedett területről \aref{fig:megallo} ábrán láthatunk példát, itt a rivális cég megállója 5 távolságra van, a két megalló lefedettsége 2 oszlopban is fedi egymást. Abban az esetben, ha a program nem talál másik állomást a vizsgált területen belül, egyszerű dolga van, mivel tudjuk használni az API által szolgáltatott függvényt. Amennyiben talált állomást, a megoldás kicsit bonyolultabb lesz. Először is létrehoztam egy listát amiben eltároltam az általunk lerakandó megálló által lefedett mezőket és minden mező értékét 1-re állítottam, aztán egy segédlistában pedig eltároltam azokat a mezőket, amelyek egy adott már meglévő megálló által le vannak fedve. Végigiterálva az általam lerakandó állomás által lefedett mezőkön, a program összehasonlítja, hogy az adott mező szerepel-e a segédlistában. Amennyiben igen, a \texttt{List()} értékmezőjében lévő értéket növelem egyel. Ha végigiterált a program az összes elemen és összes megállón, akkor a lista segítségével ki tudja számítani a valódi utasok számát. Lekérdezem a \texttt{GetCargoAcceptance()} segítségével minden egyes mezőre jutó utasszámot amit elosztok az adott elem értékével, ami 1, ha nem volt átfedés más állomással, így az adott érték az alapértelmezett marad, azonban ha volt átfedés, a kapott eredmény annyiad részét kapom eredményól, ahány megállóval van átfedésben a mező. Végül pedig visszaadom a kapott értékek összegét.
+Ez a függvény először lekérdezi az adott mező körülötti területet amit szükséges megvizsgálnia annak érdekében hogy van e átfedés a megállók között. Mivel a buszmegállók csak egy mezőt foglalnak el, és $7 \times 7$-es területet fednek le, ahol a terület közepén helyezkedik el az állomás. Így az a terület amit vizsgálnunk kell az a megálló körül vett, legalább 6 sugarú terület, ugyanis, ha még az állomástól számított 6. mezőn van egy állomás, akkor legalább egy oszlopban átfedés lesz. Azonban ha már a 7. van azt nem érdemes azt megvizsgálni, mivel pont szomszédos mezőket fednek csak le. A buszmegállók által lefedett területről \aref{fig:megallo} ábrán láthatunk példát, itt a rivális cég megállója 5 távolságra van, a két megálló lefedettsége 2 oszlopban is fedi egymást. Abban az esetben, ha a program nem talál másik állomást a vizsgált területen belül, egyszerű dolga van, mivel tudjuk használni az API által szolgáltatott függvényt. Amennyiben talált állomást, a megoldás kicsit bonyolultabb lesz. Először is létrehoztam egy listát amiben eltároltam az általunk lerakandó megálló által lefedett mezőket és minden mező értékét 1-re állítottam, aztán egy segédlistában pedig eltároltam azokat a mezőket, amelyek egy adott már meglévő megálló által le vannak fedve. Végigiterálva az általam lerakandó állomás által lefedett mezőkön, a program összehasonlítja, hogy az adott mező szerepel-e a segédlistában. Amennyiben igen, a \texttt{List()} értékmezőjében lévő értéket növelem egyel. Ha végigiterált a program az összes elemen és összes megállón, akkor a lista segítségével ki tudja számítani a valódi utasok számát. Lekérdezem a \texttt{GetCargoAcceptance()} segítségével minden egyes mezőre jutó utasszámot amit elosztok az adott elem értékével, ami 1, ha nem volt átfedés más állomással, így az adott érték az alapértelmezett marad, azonban ha volt átfedés, a kapott eredmény annyiad részét kapom eredményól, ahány megállóval van átfedésben a mező. Végül pedig visszaadom a kapott értékek összegét.
 
 \begin{figure} [b!]
 	\centering
-	\includegraphics[scale=0.8]{images/megallo.png}
+	\includegraphics[width=\textwidth]{images/megallo.png}
 	\caption{Buszmegálló által lefedett terület (lila körvonal)}
 	\label{fig:megallo}
 \end{figure}
@@ -230,7 +232,7 @@ A városkezelő utolsó függvénye a buszmegálló építő \texttt{BuildStatio
 
 Ez az osztály tartalmazza az útvonalkereső függvényt, ami valójában a keretrendszer részeként szolgáltatott \texttt{RoadPathfinder} egy implementációja. Valamint megtalálható még egy segédfüggvény, amivel egy adott mező szomszédos mezőit tudom lekérdezni, ami sok építkezésnél hasznos információkkal tud szolgálni.
 
-Az útvonalkeresőről a játék weboldalán találhatunk részletes leírást, valamint segédletet az implementációhoz. Valójában az AI-ban található implementáció is a weboldalon megtalálható egy minimális átformálása. Ennek a függvénynek csak két mező típusú objektumot kell megadnom, ami alapján az algoritmus a megadott paraméterek alapján összeköti ezeket és visszaadja az útvonalat egy path objektum formájában. Ha ezt az útvonalat megkaptam, már csak az útvonal mezőire kell utat építenem, és van is egy működő algoritmusom két pont összekötésére.
+Az útvonalkeresőről a játék weboldalán találhatunk részletes leírást, valamint segédletet az implementációhoz. Valójában az AI-ban található implementáció is a weboldalon megtalálható egy minimális átformálása. Ennek a függvénynek csak két mező típusú objektumot kell megadnom, ami alapján az algoritmus a megadott paraméterek alapján összeköti ezeket és visszaadja az útvonalat egy \texttt{path} objektum formájában. Ha ezt az útvonalat megkaptam, már csak az útvonal mezőire kell utat építenem, és van is egy működő algoritmusom két pont összekötésére.
 
 Az útvonalkereső használatához importálnunk kell a programba a \\ \texttt{pathfinder.road}-ot. Ez által érhető el az útvonalkereső funkciói. Az ebben lévő osztálynak kell egy példányát létrehoznunk, aminek a segítségével már kereshetjük is az útvonalak apróbb beállítások után.
 
@@ -250,7 +252,7 @@ function Builder::RoadBuilder(start, goal) {
 }
 \end{cpp}
 
-Az adott kódrészlet, a függvény paramétereiben átadott start és goal mezők között meg is kezdi az útvonal keresését. Ha sikeresen talált útvonalat, azt egy path objektumkban el is menti. Ha még folyamatban van az útvonal keresése, \texttt{false} értéked ad vissza, ha pedig nem talált útvonalat \texttt{null}-t. A függvényhívásnál szereplő 100-as érték az iterációk számát jelöli.
+Az adott kódrészlet, a függvény paramétereiben átadott \texttt{start} és \texttt{goal} mezők között meg is kezdi az útvonal keresését. Ha sikeresen talált útvonalat, azt egy path objektumkban el is menti. Ha még folyamatban van az útvonal keresése, \texttt{false} értéked ad vissza, ha pedig nem talált útvonalat \texttt{null}-t. A függvényhívásnál szereplő 100-as érték az iterációk számát jelöli.
 
 Az útvonalkereső algoritmus valójában egy A* algoritmus alapvető implementációja. Ez határozza meg a paraméterek szerinti "legolcsóbb" útvonalat. Példa az átállítható paraméterekre például a kanyarok költsége, alagutak vagy hidak használatának költsége, lejtők használatának költsége.
 
@@ -260,8 +262,8 @@ Az útvonalak kezeléséhez szükségem van egy osztályra, amelynek a példány
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.5]{images/line.png}
-	\caption{A \texttt{Line} osztály felépítése.}
+	\includegraphics[width=\textwidth]{images/line.png}
+	\caption{A \texttt{DebacleAI} osztályainak felépítése.}
 	\label{fig:line}
 \end{figure}
 
@@ -327,7 +329,7 @@ function Line::EstimateBusesNeeded(station1, station2)
 }
 \end{cpp}
 
-Már az algoritmus által becsült buszok számának birtokában, szükségem van egy folyamatra, ami ezeknek a buszoknak a megvásárlását elvégzi. Erre a célra alkottam meg az \texttt{AddBuses(depot, amount)} függvény. A depot-tal adom meg hogy melyik garázsba szeretném építeni az adott buszokat, az amount-tal pedig vásárolandó buszok számát, ami alap esetben a becsült buszok száma.
+Már az algoritmus által becsült buszok számának birtokában, szükségem van egy folyamatra, ami ezeknek a buszoknak a megvásárlását elvégzi. Erre a célra alkottam meg az \texttt{AddBuses(depot, amount)} függvény. A \texttt{depot}-tal adom meg hogy melyik garázsba szeretném építeni az adott buszokat, az \texttt{amount}-tal pedig vásárolandó buszok számát, ami alap esetben a becsült buszok száma.
 
 Először is meg kellett határoznom, hogy milyen típusú járművet szeretnék vásárolni. Erre azért van szükség, mivel a játékbeli idő előrehaladtával újabb járművekhez van hozzáférése a cégeknek, amik modernebbek, nagyobb férőhellyel rendelkeznek vagy megbízhatóbb működésűek. Az egyszerűség kedvéért, én csak a legnagyobb férőhelyű busszal foglalkoztam az adott buszok listája közül. Ennek a busztípusnak a meghatározását egy külön függvénybe rendeztem, mivel a buszok karbantartásánál is hasznos lesz a legnagyobb kapacitású busz meghatározása.
 
@@ -337,7 +339,7 @@ Miután rendelkezem minden elemmel ami a vonal működéséhez szükséges, ide 
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.45]{images/vonal.png}
+	\includegraphics[width=\textwidth]{images/vonal.png}
 	\caption{Egy aktív vonal buszmegállókkal, garázzsal és buszokkal.}
 	\label{fig:vonal}
 \end{figure}
@@ -377,9 +379,9 @@ Az elöregedő buszok lecserélése közben is el kell távolítanom adott buszo
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[scale=1]{images/buszok.png}
+	\includegraphics[width=\textwidth]{images/buszok.png}
 	\caption{Cég buszainak listája, Elöregedett buszok (piros), Garázsban várakozó buszok (Kék) és aktív buszok (fekete)}
 	\label{fig:vonal}
 \end{figure}
 
-Az buszok eltávolítása közben egy olyan problémába ütköztem, hogy csak olyan buszok eladására van lehetőségünk, amelyek egy garázsban vannak leállítva. Tehát, amikor el akarok adni egy járművet, először ki kell adnom a parancsot hogy menjen a legközelebbi garázsba, aztán ha látom, hogy az adott busz megállt tudjuk csak eladni. Egy busz esetében ez nem is lenne nagy hatással a programra, viszont mivel a vonal felépítésekor egyszerre több buszt is vásárolunk, ezek egyszerre fognak kiöregedni is. Így ha minden buszra egyesével kellene várnia a programnak míg befut a garázsba és eladásra kerül, jelentős futási időt pazarolna el az AI, amit akár új vonalak létrehozására is szánhatna. Ezért minden elöregedett vagy eladásra váró buszt először eltávolítok a buszok listájából, és hozzáadom az eladásra váró buszok listájához. Ezt a listát a járművek kezelése előtt ellenőrzöm, hogy az ebben szereplő buszok beérkeztek-e már a garázsba és amennyiben igen, eladom azokat. Így párhuzamosítva az eladás folyamatát a program többi részével.
+Az buszok eltávolítása közben egy olyan problémába ütköztem, hogy csak olyan buszok eladására van lehetőségünk, amelyek egy garázsban vannak leállítva. Tehát, amikor el akarok adni egy járművet, először ki kell adnom a parancsot hogy menjen a legközelebbi garázsba, aztán ha látom, hogy az adott busz megállt tudjuk csak eladni. Egy busz esetében ez nem is lenne nagy hatással a programra, viszont mivel a vonal felépítésekor egyszerre több buszt is vásárolunk, ezek egy időben fognak kiöregedni is. Így ha minden buszra egyesével kellene várnia a programnak míg befut a garázsba és eladásra kerül, jelentős futási időt pazarolna el az AI, amit akár új vonalak létrehozására is szánhatna. Ezért minden elöregedett vagy eladásra váró buszt először eltávolítok a buszok listájából, és hozzáadom az eladásra váró járművek listájához. Ezt a listát a járművek kezelése előtt ellenőrzöm, hogy az ebben szereplő buszok beérkeztek-e már a garázsba és amennyiben igen, eladom azokat. Így párhuzamosítva az eladás folyamatát a program többi részével.

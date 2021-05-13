@@ -29,13 +29,13 @@ Példa Sqirrel kódra:
 
 \begin{cpp}
 class Osztaly
-{	
+{
   constructor(valt1,valt2)
   {
     // Konstruktor kódja
   }
-  //változó definíciók	
-  local szoveg = "Ez egy szöveg"; 
+  //változó definíciók
+  local szoveg = "Ez egy szöveg";
   local szam = 10;
   local tomb = [0, "szöveg", [2.0, "tömb"]];
 }
@@ -44,10 +44,10 @@ function Osztaly::areaOfCircle(radius) {
   return (PI * radius * radius);
 }
 // Függvényhívás
-local terulet = areaOfCircle(10);	
+local terulet = areaOfCircle(10);
 \end{cpp}
 
-A Squirrel egy dinamikusan típusos nyelv, ami azt jelenti, hogy a változók definiálásakor nem kell megadnunk az adott változó típusát, hanem a fordító azt automatikusan észleli és hozzárendeli. Azonban a futási idő alatt egy változó típusa változhat, például egy integer változót ha szorzunk egy float-tal a kapott értékünk float típusú lesz. A Squirrelben kétféle változót különböztetünk meg hatókör szerint. Az egyik a local a másik a global változó. Lokális változókat a local kulcsszóval tudunk definiálni, aminek a hatásköre az adott programrész lesz. Ezzel szemben a globális változókat általában a program gyökerében szokás definiálni. Fontos megjegyezni, hogy "global" kulcsszó nem létezik a nyelv szintaktikájában. A gyökérben definiált globális változóknál nem kell kulcsszót használnunk, azonban ha egy osztályon belül tesszük ezt meg "::"-t kell használnunk. A változóknak nem szükséges memóriát allokálni, ezt a beépített memóriakezelő alapból elvégzi helyettünk, valamint a deallokációt is.
+A Squirrel egy dinamikusan típusos nyelv, ami azt jelenti, hogy a változók definiálásakor nem kell megadnunk az adott változó típusát, hanem a fordító azt automatikusan észleli és hozzárendeli. Azonban a futási idő alatt egy változó típusa változhat, például egy integer változót ha szorzunk egy \texttt{float}-tal a kapott értékünk \texttt{float} típusú lesz. A Squirrelben kétféle változót különböztetünk meg hatókör szerint. Az egyik a \texttt{local} a másik a \texttt{global} változó. Lokális változókat a \texttt{local} kulcsszóval tudunk definiálni, aminek a hatásköre az adott programrész lesz. Ezzel szemben a globális változókat általában a program gyökerében szokás definiálni. Fontos megjegyezni, hogy "\texttt{global}" kulcsszó nem létezik a nyelv szintaktikájában. A gyökérben definiált globális változóknál nem kell kulcsszót használnunk, azonban ha egy osztályon belül tesszük ezt meg "::"-t kell használnunk. A változóknak nem szükséges memóriát allokálni, ezt a beépített memóriakezelő alapból elvégzi helyettünk, valamint a deallokációt is.
 
 \begin{cpp}
 // Egy globális változó, kezdeti értékkel
@@ -57,7 +57,7 @@ aGlobalVariable <- 42.0;
 ::aGlobalVariable <- 42.0001;
 \end{cpp}
 
-A korábban felsorolt funkciói miatt a Squirrel egy nagyon rugalmas és egyszerűen implementálható eszköz, ami tökéletes egy játékhoz való API elkészítéséhez. További előnyök ami miatt az OpenTTD fejszeltői a Squirrel mellett döntöttek a C++ helyett az AI támogatáshoz:
+A korábban felsorolt funkciói miatt a Squirrel egy nagyon rugalmas és egyszerűen implementálható eszköz, ami tökéletes egy játékhoz való API elkészítéséhez. További előnyök ami miatt az OpenTTD fejszeltői a Squirrel mellett döntöttek a C++ helyett az AI támogatáshoz\cite{wisniewski2011artificial}:
 
 \begin{itemize}
 	\item Beépített multi-platform támogatás
@@ -74,7 +74,7 @@ Ahhoz hogy Squirrel programot készítsünk, csak a Squirrel-re, és egy szöveg
 
 A korábban fejlesztett és jelenleg támogatott AI-ok mind a NoAI Framework nevű keretrendszerre épülnek. Egy másik lehetőség lenne egy AI megvalósítására a játékon belül a játék forráskódjának szerkesztése és annak újrafordítása, azonban a keretrendszer által adott egyszerűsítések jelentősen a háttérbe szorítják ezt az opciót, amellett hogy ez sokkal bonyolultabbá tenné az AI implementálását, az elérhetőségét is korlátozná.
 
-Ahogyan az korábban említve volt, az OpenTTD játék forráskódja nyílt, és a hozzá tartozó, felhasználók által készített szkriptek nagyrésze is az. A legtöbb az Általános Nyilvános Licenc (GNU) 2.0-ás vagy 3.0 változata alatt érhetőek el. Emiatt a fejlesztés megkezdése előtt két lehetőségünk van, az egyik egy AI megvalósítása teljesen a semmiből, vagy pedig egy már létező AI kódjának az átformázása a mi céljainkra, vagy esetleg már létező kódrészletek használata.
+Ahogyan az korábban említve volt, az OpenTTD játék forráskódja nyílt, és a hozzá tartozó, felhasználók által készített szkriptek nagy része is az. A legtöbb az Általános Nyilvános Licenc (GNU) 2.0-ás vagy 3.0 változata alatt érhetőek el. Emiatt a fejlesztés megkezdése előtt két lehetőségünk van, az egyik egy AI megvalósítása teljesen a semmiből, vagy pedig egy már létező AI kódjának az átformázása a mi céljainkra, vagy esetleg már létező kódrészletek használata.
 
 A keretrendszer részeként érdemes megemlíteni, a játékhoz elérhető előre készített könyvtárakat. Néhány egyszerű, de fontos elemet tartalmaznak, amelyek közül a saját megvalósítás alatt használunk is. Ilyenek például különböző útvonalkereső algoritmusok, amelyek út vagy vasútvonalakat tudnak létrehozni adott pontok között. A fejlesztő nincs ezeknek az elemeknek a használatára kötelezve, saját implementációt is készíthet egy útvonalkereső algoritmushoz.
 
@@ -83,11 +83,11 @@ A keretrendszer részeként érdemes megemlíteni, a játékhoz elérhető előr
 
 Ahogyan az korábban említve volt a játék egy egészen bőkezű API-val rendelkezik, aminek a segítségével elérhetőek lesznek a fejlesztő számára azok a funkciók és információk mint amik egy felhasználónak is elérhetőek a játék közben. Értve itt például a pálya állapotának lekérdezését, vagy utak építését. Minden funkció különböző osztályokba vannak rendezve aszerint hogy milyen feladatot látnak el. Például az \texttt{AIStation} osztályban találunk olyan függvényeket amelyekkel egy állomáshoz kapcsolódó információkat tudunk lekérdezni, vagy módosítani.
 
-A különböző funkciók mellett az API felel a különböző AI-ok ütemezéséért is a játék futása alatt. Ugyanis a játék futása közben, egy vagy több AI-nak a játék időközönként futási időt ad, amikor a megírt programkód ténylegesen lefut. Ez a játékban egy round-robin módszerű ütemezővel van megoldva, vagyis a vezérlés először a játéknál van, aztán több AI esetén, először az egyik kap időt parancsok végrehajtására, aztán pedig egy másik, amíg mindegyik sorra nem jut, aztán a folyamat elölről kezdődik, így biztosítva hogy a futási idő egyenletesen legyen elosztva. 
+A különböző funkciók mellett az API felel a különböző AI-ok ütemezéséért is a játék futása alatt. Ugyanis a játék futása közben, egy vagy több AI-nak a játék időközönként futási időt ad, amikor a megírt programkód ténylegesen lefut. Ez a játékban egy round-robin módszerű ütemezővel van megoldva, vagyis a vezérlés először a játéknál van, aztán több AI esetén, először az egyik kap időt parancsok végrehajtására, aztán pedig egy másik, amíg mindegyik sorra nem jut, aztán a folyamat elölről kezdődik, így biztosítva hogy a futási idő egyenletesen legyen elosztva.
 
 Az \texttt{AIController} nevű osztály amivel már a minimális AI elkészítése során is találkozhatunk, ugyanis, a "\texttt{main.nut}"-on belül található osztályunknak az API ezen osztályából kell leszármaznia ahhoz, hogy a \texttt{Start()} függvényt meg tudjuk hívni az AI indításakor. Valamint ezen keresztül kérdezhetőek le információk a játék jelenlegi állapotáról.
 
-A fejlesztő szempontjából hasznosak lehetnek az \texttt{AIError}, \texttt{AIEvent} és \texttt{AILog} osztályok. Ezek segítségével van lehetőség kommunikálni a játék konzolába a program futásából különböző nyomkövetéshez hasznos üzeneteket, vagy az \texttt{AIError} segítségével észlelhetőek és lekérdezhetőek a hibák.
+A fejlesztő szempontjából hasznosak lehetnek az \texttt{AIError}, \texttt{AIEvent} és \texttt{AILog} osztályok. Ezek segítségével van lehetőség kommunikálni a játék konzoljába a program futásából különböző nyomkövetéshez hasznos üzeneteket, vagy az \texttt{AIError} segítségével észlelhetőek és lekérdezhetőek a hibák.
 
 Az AI szempontjából több hasznos osztály is rendelkezésre áll, egyrészt az \\ \texttt{AICompany} és \texttt{AIAccounting} amelyek a céggel kapcsolatos információk lekérdezésében és változtatásában és a cég pénzügyeinek a kezelésében segítenek.
 
@@ -124,11 +124,11 @@ AILog.Info("Ez szöveg egy adott változóval" + szam);
 AILog.Error("Ez a szöveg pirosan jelenik meg az ablakban");
 \end{cpp}
 
-Abban az esetben, ha a programunk fordítás, vagy futás közben olyan hibába ütközik, amit nem kezeltünk le, egy részletes hibajelentést kapunk róla a nyomkövető ablakban, és a játék konzolában is. Ez pontosan leírja, hogy melyik sor futása közben lépett fel a hiba, és az adott pillanatban a létező változóknak mi volt az értéke. Ez a funkció nagyon hasznos volt az AI fejlesztése közben, mivel jelentősen megkönnyítette a hibajavítás folyamatát. Mert a Visual Studio Code-hoz használt Squirrel kiegészítő nem rendelkezett teljes szintaktikai hiba észleléssel, azonban az első futtatás után könnyen megtalálhatóak voltak az adott hibák.
+Abban az esetben, ha a programunk fordítás, vagy futás közben olyan hibába ütközik, amit nem kezeltünk le, egy részletes hibajelentést kapunk róla a nyomkövető ablakban, és a játék konzoljában is. Ez pontosan leírja, hogy melyik sor futása közben lépett fel a hiba, és az adott pillanatban a létező változóknak mi volt az értéke. Ez a funkció nagyon hasznos volt az AI fejlesztése közben, mivel jelentősen megkönnyítette a hibajavítás folyamatát. Mert a Visual Studio Code-hoz használt Squirrel kiegészítő nem rendelkezett teljes szintaktikai hiba észleléssel, azonban az első futtatás után könnyen megtalálhatóak voltak az adott hibák.
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.8]{images/console.png}
+	\includegraphics[width=\textwidth]{images/console.png}
 	\caption{A játékon belül található nyomkövető ablak.}
 	\label{fig:console}
 \end{figure}
@@ -137,14 +137,14 @@ Abban az esetben, ha a programunk fordítás, vagy futás közben olyan hibába 
 
 A következő szövegrész az OpenTTD szkript fejlesztői oldalán az AI-okra vonatkozó részének rövid összefoglalása\cite{noaidev}.
 
-Először is, hogyan tudunk megvalósítani egy AI-t a játék keretein belül. Három dologra van szükségünk ahhoz hogy ezt létrehozzuk. Először is a játék mappáján belül található "\texttt{ai}" nevű mappában kell létrehoznunk egy mappát, szabvány szerűen az AI nevével. Aztán ebben a mappában 2 fájlra lesz szükségünk, mindkettő Squirrel nyelvű "\texttt{.nut}" kiterjesztésűnek kell lennie, az egyik "\texttt{info.nut}" a másik pedig "\texttt{main.nut}" néven kell létrehoznunk.
+Először is, hogyan tudunk megvalósítani egy AI-t a játék keretein belül. Három dologra van szükségünk ahhoz hogy ezt létrehozzuk. Először is a játék mappáján belül található \texttt{ai} nevű mappában kell létrehoznunk egy mappát, szabvány szerűen az AI nevével. Aztán ebben a mappában 2 fájlra lesz szükségünk, mindkettő Squirrel nyelvű \texttt{.nut} kiterjesztésűnek kell lennie, az egyik \texttt{info.nut} a másik pedig \texttt{main.nut} néven kell létrehoznunk.
 
-Az "\texttt{info.nut}" fájlban tudjuk megadni az általános információkat az AI-unkról, például a szerző nevét, az AI nevét, a játékban elérhető rövid leírását, a kód verziószámát és kiadási dátumát. Ebben az osztályban van lehetőségünk különböző beállítások definiálására is, amihez a felhasználó az egyik a játékban található menüpontban tud hozzáférni. Ahhoz hogy a játék magjának is a tudtára adjuk hogy ez egy AI a \texttt{RegisterAI()} nevű függvényt kell meghívnunk.
+Az \texttt{info.nut} fájlban tudjuk megadni az általános információkat az AI-unkról, például a szerző nevét, az AI nevét, a játékban elérhető rövid leírását, a kód verziószámát és kiadási dátumát. Ebben az osztályban van lehetőségünk különböző beállítások definiálására is, amihez a felhasználó az egyik a játékban található menüpontban tud hozzáférni. Ahhoz hogy a játék magjának is a tudtára adjuk hogy ez egy AI a \texttt{RegisterAI()} nevű függvényt kell meghívnunk.
 
 Példa az \texttt{info.nut} tartalmára:
 
 \begin{cpp}
-class MyNewAI extends AIInfo 
+class MyNewAI extends AIInfo
 {
   function GetAuthor()        { return "Newbie AI Writer"; }
   function GetName()          { return "MyNewAI"; }
@@ -154,7 +154,7 @@ class MyNewAI extends AIInfo
   function CreateInstance()   { return "MyNewAI"; }
 }
 
-/* Tell the core we are an AI */
+/* Itt mondjuk meg a magnak hogy egy AI vagyunk */
 RegisterAI(MyNewAI())
 \end{cpp}
 
@@ -196,20 +196,20 @@ Az OpenTTD játék kiegészítők nélküli verziójában nem található előre
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.4]{images/bananas.png}
+	\includegraphics[width=\textwidth]{images/bananas.png}
 	\caption{Játékszkriptek és AI-ok letöltése a játékon belől a BaNaNaS repositoryból.}
 	\label{fig:bananas}
 \end{figure}
 
 A különböző AI-ok mind különböző céllal jöttek létre. Vannak, amelyek egyes szállítás módszer lehető legjobb megvalósítására fókuszálnak, például TrAIns(Vonatokra), RoadAI(közúti járművekre), Chopper(Légi közlekedésre). Ezek mellett vannak általánosak is, például az AdmiralAI amelynek fókusza a lehető legtöbb funkció implementálása volt vagy a SimpleAI ami szintén általános és több szállítási módszert is alkalmazó AI. Vannak olyan AI-ok is amik lehet hogy nem a leghatékonyabban működnek, de van egy olyan tulajdonságuk ami érdekessé tenné azt, például a PathZilla ami gráfelmélet segítségével létrehozott úthálózatok építésére fókuszál, valamint többfajta útvonalkereső algoritmust alkalmaz.
 
-Az AdmiralAI célja a játékhoz készített API legtöbb funkciójának kihasználása, valamint a változatos játékélmény biztosítása. Az utóbbit azzal próbálja meg elérni, hogy az AI minden szállítási módszert igyekszik alkalmazni. A mi szemszögünkből azért érdemes az AdmiralAI-al foglalkozni, mivel sok példát találhatunk a program forráskódjában, az API függvényeinek megvalósítására, valamint az AI felépítésére. A fájlszerkezet nagyon jól kitalált és felépített, minden összefüggő függvény, parancs, el van tagolva megfelelő osztályokba, mappákba, bár a kód értelmezése előzetes ismeretek nélkül elég nehézkes a kódhoz tartozó kommentekkel együtt is. AZ AI részletessége, és igényessége valamilyen szinten betudható adnak, hogy a készítője Thijs 'Yexo' Marinussen egyben az OpenTTD egyik fejlesztője, és az API fejlesztője is egyben. Az AI sok inspirációt tud adni a sajátunk fejlesztéséhez, de előzetes ismeretekre van szükségünk az API-ról a megfelelő szintű megértéshez.
+Az AdmiralAI célja a játékhoz készített API legtöbb funkciójának kihasználása, valamint a változatos játékélmény biztosítása. Az utóbbit azzal próbálja meg elérni, hogy az AI minden szállítási módszert igyekszik alkalmazni. A mi szemszögünkből azért érdemes az AdmiralAI-al foglalkozni, mivel sok példát találhatunk a program forráskódjában, az API függvényeinek megvalósítására, valamint az AI felépítésére. A fájlszerkezet nagyon jól kitalált és felépített, minden összefüggő függvény, parancs, el van tagolva megfelelő osztályokba, mappákba, bár a kód értelmezése előzetes ismeretek nélkül elég nehézkes a kódhoz tartozó megjegyzésekkel együtt is. AZ AI részletessége, és igényessége valamilyen szinten betudható adnak, hogy a készítője Thijs 'Yexo' Marinussen egyben az OpenTTD egyik fejlesztője, és az API fejlesztője is egyben. Az AI sok inspirációt tud adni a sajátunk fejlesztéséhez, de előzetes ismeretekre van szükségünk az API-ról a megfelelő szintű megértéshez.
 
 A PathZilla már sokkal egy érdekesebb megvalósítása egy AI-nak, mivel gráfelméleti algoritmusokat használ a városok összekötésére, és útvonalak megtervezésére \cite{openttdforum}. A PathZilla működéséről egy szemléltetést láthatunk \aref{fig:pathzilla}. ábrán. Először veszi a térképen található városok pozíciót, és ezek között létrehoz egy hálót Delaunay-háromszögeléses módszerrel. A kapott hálón megkeresi a legrövidebb utak fáját és a minimális feszítőfát és a kettő összemosásával kapott gráf alapján köti össze az érintett városokat. Ez a működés szemléltetve van az AI fórum bejegyzésében egy rövid képsorozat formájában.
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=1]{images/pathzilla.png}
+	\includegraphics[width=\textwidth]{images/pathzilla.png}
 	\caption{A PathZilla működésének szemléltetése. Forrás: \url{https://www.tt-forums.net/viewtopic.php?t=38645}}
 	\label{fig:pathzilla}
 \end{figure}

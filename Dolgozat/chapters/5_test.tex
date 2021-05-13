@@ -37,7 +37,7 @@ Ahogyan \aref{fig:atlag} ábrán megfigyelhető, egy átlagos futtatási szituá
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.7]{images/atlag.png}
+	\includegraphics[width=\textwidth]{images/atlag.png}
 	\caption{A DebacleAI kiértékelése egy 10 éves játékfolyamat után.}
 	\label{fig:atlag}
 \end{figure}
@@ -77,9 +77,9 @@ Ez a teszt megerősítette a korábban mért teljesítményét az AI-nak, ugyani
 		\hline
 		Cég értéke: &  \pounds 351.896 & \pounds 520.168  & \pounds 1.073.358 & \pounds 2.271.429\\
 		\hline
-		Közúti járművek bevétele(előző év) & +\pounds 177.296 & +\pounds 227.190  & +\pounds 367.574 & +\pounds 707.739 \\
+		Járművek előző évi bevétele & +\pounds 177.296 & +\pounds 227.190  & +\pounds 367.574 & +\pounds 707.739 \\
 		\hline
-		Járművek száma(ebből nyereséges) & 62/95 & 99/149 & 126/188 & 208/298 \\
+		Járművek száma(nyereséges) & 62/95 & 99/149 & 126/188 & 208/298 \\
 		\hline
 		Állomások száma & 38 & 58 & 62 & 108 \\ 
 		\hline
@@ -96,11 +96,11 @@ Ez a teszt megerősítette a korábban mért teljesítményét az AI-nak, ugyani
 
 Ebben a szakaszban az AdmiralAI-t választottam mint rivális cég. Ennek az oka az volt, hogy az AdmiralAI az egyik leggyakoribban használt AI a játékon belül, valamint annak ellenére, hogy az AI megvalósítása általános, a beállításai módosításával elérhető, hogy csak buszokat használjon. Ennek az összevetésnek az eredményei \aref{tab:debvsadm} táblázatban láthatóak.
 
-Ahogyan a táblázatból is leolvasható, a DebacleAI nyereségben, és ősszesített pontok alapján is az AdmiralAI mögött helyezkedik el. Azonban ez korántsem meglepő megállapítás. A két AI fejlesztési idejének különbségéhez képest, a teljesítménybeli eltérések egészen alacsonyak. A tesztfolyamat közben észrevehető volt, hogy a DebacleAI pár év lemaradással, ugyan azt a tendenciát követte a bevétel szempontjából, mint az AdmiralAI. A DebacleAI a város és buszmegálló keresése közben, mindig a legideálisabbat igyekszik megtalálni, és próbálja minimalizálni a rivális cégekkel való osztozkodást az utasokon. Emiatt többször is előfordult a játék állapotát figyelve, hogy az AdmiralAI terjeszkedése gyorsabb volt, így kizárta egy adott városba való terjeszkedését a DebacleAI-nak. Az tesztfolyamat utolsó 6 évében a vállalat értékének alakulását \aref{fig:dvafug} ábrán láthatjuk.
+Ahogyan a táblázatból is leolvasható, a DebacleAI nyereségben, és ősszesített pontok alapján is az AdmiralAI mögött helyezkedik el. Azonban ez korántsem meglepő megállapítás. A két AI fejlesztési idejének különbségéhez képest, a teljesítménybeli eltérések egészen alacsonyak. A tesztfolyamat közben észrevehető volt, ho gy a DebacleAI pár év lemaradással, ugyan azt a tendenciát követte a bevétel szempontjából, mint az AdmiralAI. A DebacleAI a város és buszmegálló keresése közben, mindig a legideálisabbat igyekszik megtalálni, és próbálja minimalizálni a rivális cégekkel való osztozkodást az utasokon. Emiatt többször is előfordult a játék állapotát figyelve, hogy az AdmiralAI terjeszkedése gyorsabb volt, így kizárta egy adott városba való terjeszkedését a DebacleAI-nak. Az tesztfolyamat utolsó 6 évében a vállalat értékének alakulását \aref{fig:dvafug} ábrán láthatjuk.
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.9]{images/valert.png}
+	\includegraphics[width=\textwidth]{images/valert.png}
 	\caption{A DebacleAI(Rózsaszín) és AdmiralAI(Kék) Cég értékét ábrázoló grafikon az utolsó 20 negyedévre nézve.}
 	\label{fig:dvafug}
 \end{figure}
@@ -141,21 +141,21 @@ Az előző fejezetben bemutatott városkereső algoritmus rendelkezik egy súly 
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.35]{images/wmeresek.png}
+	\includegraphics[width=\textwidth]{images/wmeresek.png}
 	\caption{A DebacleAI bevételének változása a $w$ értékétől függően.}
 	\label{fig:meresek}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=1]{images/wutak.png}
+	\includegraphics[width=\textwidth]{images/wutak.png}
 	\caption{A DebacleAI által épített utak mennyiségének változása a $w$ értékétől függően.}
 	\label{fig:utak}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=1]{images/wallomas.png}
+	\includegraphics[width=\textwidth]{images/wallomas.png}
 	\caption{A DebacleAI által épített buszmegállók mennyiségének változása a $w$ értékétől függően.}
 	\label{fig:wmegallok}
 \end{figure}
@@ -167,4 +167,5 @@ A tesztelés folyamata közbeni észrevételek:
 	\item Az előző pontban említett messzi városok összekötése miatt történt az is, hogy a magasabb $w$ értékeknél kevesebb megálló került építésre, azaz kevesebb útvonal lett létrehozva.
 	\item Az évek haladtával észrevehető, hogy azonos $w$ értéknél egymást követő éveken keresztül ugyan akkora a bevétel. Ezt a tesztelés közben a nyomkövető ablakot vizsgálva, annak tudható be, hogy amikor a cég eléri a maximális kölcsön méretet és várnia kell, amíg elegendő pénzmennyiség összegyűlik egy új vonal megépítéséhez, miközben a buszokat is kezeli.
 	\item A nagyobb $w$ értékek esetében az első években a cég bevétele nagyobb, azonban a későbbiekben lemarad az alacsonyabbakéhoz képest.
+	\item A tesztelés során a legmagasabb bevételi értéket, ami \pounds 366480 volt, a 0.5-ös $w$ értékkel érte el a program. A megépített buszmegállók számából megfigyelhető még, hogy a 0.5-ös értéknél lett létrehozva a legtöbb vonal is a pályán. Ez ebben az esetben a megépített megállók fele, azaz 45.
 \end{itemize}
