@@ -3,7 +3,7 @@
 \Section{Felhasználói kézikönyv}
 \label{sec:installation}
 
-Ahhoz hogy az AI ellen tudjunk játszani, először telepítenünk kell az OpenTTD-t. Ha ez megtörtént, az AI fájljait a játék mappájában lévő "\textit{ai}" nevű mappába kell bemásolnunk. Ennek az útvonala alapértelmezett telepítési beállítások mellett Windows-on "\texttt{C:\textbackslash Program Files\textbackslash OpenTTD\textbackslash ai}". Miután bemásoltuk az AI mappáját a játékéba, az elindítást követően az "MI/Játékszkript beállítások" menüpontban van lehetőség gépi ellenfél hozzáadására, az ilyenkor megnyíló helyre be lehet állítani a DebacleAI-t mint ellenfél. Ezt követően egy új játék megkezdésekor az AI automatikusan el fog indulni.
+Ahhoz hogy az AI ellen tudjunk játszani, először telepítenünk kell az OpenTTD-t. Ha ez megtörtént, a DebacleAI fájljait a játék mappájában lévő \texttt{ai} nevű mappába kell bemásolnunk. Ennek az útvonala alapértelmezett telepítési beállítások mellett Windows-on "\texttt{C:\textbackslash Program Files\textbackslash OpenTTD\textbackslash ai}". Miután bemásoltuk a DebacleAI mappáját a játékéba, az elindítást követően az "MI/Játékszkript beállítások" menüpontban van lehetőség gépi ellenfél hozzáadására, az ilyenkor megnyíló helyre be lehet állítani a DebacleAI-t mint ellenfél. Ezt követően egy új játék megkezdésekor az AI automatikusan el fog indulni.
 
 Ezek után egyéb figyelmet az AI nem igényel, a felhasználó szabadon játszhat a játékkal, miközben az AI is a korábban bemutatott módon fogja játszani a játékot mint egy rivális cég a pályánkon.
 
@@ -11,9 +11,9 @@ Abban az esetben ha az AI futás idejű problémába ütközne, a játék értes
 
 \Section{Megfigyelések}
 
-Már a rövid fejlesztési folyamat közben is észrevehető volt, hogy az AI képes a játékmenet fenntartására, és nyereség generálására is, tehát ebből a szempontból a saját stratégia megvalósítása sikeresnek nevezhető. Ugyanakkor, az AI csak utasok szállításával foglalkozik buszok segítségével, a többi szállítási lehetőség egyáltalán nincs lefedve az AI által.
+Már a rövid fejlesztési folyamat közben is észrevehető volt, hogy az AI képes a játékmenet fenntartására, és nyereség generálására is, tehát ebből a szempontból a saját stratégia megvalósítása sikeresnek nevezhető. Ugyanakkor, a DebacleAI csak utasok szállításával foglalkozik buszok segítségével, a többi szállítási lehetőség egyáltalán nincs lefedve az AI által.
 
-Ezzel szemben más AI-oknak sokkal kifejlettebbek. Az általános AI-ok minden szállítási lehetőséggel, és sokkal stabilabban futnak, kevesebb hibába ütköznek és több profitot is képesek generálni. Ez annak is betudható, hogy a legtöbb AI éveken keresztül haladt át a fejlesztési folyamaton és ennél még hosszabb tesztelési fázison. Ami közben és után, elérhető volt a BaNaNaS repository részeként, így játékosok százai tudták kipróbálni őket, és visszajelzést adni adott hibákról, problémákról vagy ötletekkel hozzájárulni a folyamathoz. A fórumbejegyzéseket olvasva megállapítható, hogy a problémák többsége ami felléphet a játék folyamán a következőek: 
+Ezzel szemben más AI-oknak sokkal kifejlettebbek. Az általános AI-ok minden szállítási lehetőséggel, és sokkal stabilabban futnak, kevesebb hibába ütköznek és több profitot is képesek generálni. Ez annak is betudható, hogy a legtöbb AI éveken keresztül haladt át a fejlesztési folyamaton és ennél még hosszabb tesztelési fázison. Ami közben és után, elérhető volt a játékosbázis részére, így játékosok százai tudták kipróbálni őket, és visszajelzést adni adott hibákról, problémákról vagy ötletekkel hozzájárulni a folyamathoz. A fórumbejegyzéseket olvasva megállapítható, hogy a problémák többsége ami felléphet a játék folyamán a következőek: 
 
 \begin{itemize}
 	\item Útvonal/hálózat tervezéssel kapcsolatos problémák
@@ -23,7 +23,7 @@ Ezzel szemben más AI-oknak sokkal kifejlettebbek. Az általános AI-ok minden s
 	\item Létező infrastruktúra újrahasznosításával kapcsolatos problémák
 \end{itemize}
 
-Ebből a lényeges információ amire következtethetünk, hogy függetlenül a fejlesztési időtől vagy a tesztelők számától, még a legrégebbi és legátfogóbb AI-okban is jelentkezhetnek problémák. Ezeket a megszokott módon a fórumbejegyzésekben szokták megtenni, megfigyelhető, hogy 10 évvel ezelőtt fejlesztett AI-ok bejegyzéseiben még a tavalyi év folyamán is érkeztek bejelentések hibákról. Tekintve, hogy a játék környezete nagyon dinamikus, és az AI megvalósításának problémája mennyire komplex, nehéz teljesen ideális, vagy hibátlan állapotot elérni.
+Ebből a lényeges információ amire következtethetünk, hogy függetlenül az AI fejlesztési idejétől vagy a tesztelők számától, még a legrégebbi és legátfogóbb AI-okban is jelentkezhetnek problémák. Ezeket a megszokott módon a fórumbejegyzésekben szokták megtenni, megfigyelhető, hogy 10 évvel ezelőtt fejlesztett AI-ok bejegyzéseiben még a tavalyi év folyamán is érkeztek bejelentések hibákról. Tekintve, hogy a játék környezete nagyon dinamikus, és az AI megvalósításának problémája mennyire komplex, nehéz teljesen ideális, vagy hibátlan állapotot elérni.
 
 Ahogyan \aref{fig:atlag} ábrán megfigyelhető, egy átlagos futtatási szituációban az AI jó eredményeket képes produkálni. Itt látható, hogy a 10 éves folyamat alatt:
 

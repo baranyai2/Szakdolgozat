@@ -20,11 +20,11 @@ A hálózat kiépítése alatt arra gondolok, hogy például, az út- vagy vasú
 
 A kölcsön fedezésére is több módszer lehetséges. A játék kezdetén érdemes lehet korlátozni a terjeszkedést pár kisebb, profitáló útvonalra, amíg a kezdeti kölcsönt visszafizetjük, és aztán vállalni kockázatosabb fejlesztéseket. De stratégia lehet az is, hogy a kezdeti kölcsön mellé, felvesszük a maximális kölcsön mennyiséget amit a játék megenged, és sokkal nagyobb, tágabb infrastruktúra kiépítésére kezdünk, ami rövid távon nem annyira hatékony mint a lassú terjeszkedés, de hosszú távon sokkal nyereségesebb lehet.
 
-Végső soron pedig, mivel a játék környezete interaktív, kérdés lehet a játékos számára hogy hogyan tud a változásokhoz alkalmazkodni. Például jó módszer lehet az önkormányzati támogatások “levadászása” mivel lehetséges, hogy egy egyébként nem túl nyereséges útvonalra a támogatással már sokkal inkább megéri figyelmet fordítani. De ez ellen mehet a korábbiakban megemlített játékterveknek, kiindulva a “csak utasok és levelek” példából, ha a támogatás mondjuk szén szállítására szól, akkor lehet egyébként nyereséges lenne a játékos számára, de nem része a játéktervének. Ugyan így érdemes figyelmet fordítani más játékosokra is legyen az számítógép, vagy valósa a játékos játékos. Ha azt látja hogy az ellenfele csak a városokkal foglalkozik, abban az esetben érdemes lehet neki a bányákra, gyárakra koncentrálni, mivel ott kevesebb a versengés, így több rakomány áll rendelkezésre amiket elszállíthat.
+Végső soron pedig, mivel a játék környezete interaktív, kérdés lehet a játékos számára hogy hogyan tud a változásokhoz alkalmazkodni. Például jó módszer lehet az önkormányzati támogatások “levadászása” mivel lehetséges, hogy egy egyébként nem túl nyereséges útvonalra a támogatással már sokkal inkább megéri figyelmet fordítani. De ez ellen mehet a korábbiakban megemlített játékterveknek, kiindulva a “csak utasok és levelek” példából, ha a támogatás mondjuk szén szállítására szól, akkor lehet egyébként nyereséges lenne a játékos számára, de nem része a játéktervének. Ugyan így érdemes figyelmet fordítani más játékosokra is legyen az számítógép, vagy valós játékos. Ha azt látja hogy az ellenfele csak a városokkal foglalkozik, abban az esetben érdemes lehet neki a bányákra, gyárakra koncentrálni, mivel ott kevesebb a versengés, így több rakomány áll rendelkezésre amiket elszállíthat.
 
 \Section{A játékfelület bemutatása}
 
-A játékot elindítva a főmenü (\ref{fig:menu}. ábra) fogadja a felhasználót. Innen elérhet minden funkciót amire a játék kezdete előtt szüksége lenne. Az "Alapbeállítások" menüpontban beállítható a játék felülete, és játékot befolyásoló tényezőket is. A felület betűméretét, nyelvét, az ablak nagyságát tudjuk beállítani. A játék tényezőire vonatkozó beállítások, a bal vagy jobb kormányos járművek használata, a játék pénzneme és a városok neveinek nyelve.
+A játékot elindítva a főmenü (\ref{fig:menu}. ábra) fogadja a felhasználót. Innen elérhet minden funkciót amire a játék kezdete előtt szüksége lenne. Az "Alapbeállítások" menüpontban beállítható a játék felülete, és játékot befolyásoló tényezők is. A felület betűméretét, nyelvét, az ablak nagyságát tudjuk beállítani. A játék tényezőire vonatkozó beállítások, a bal vagy jobb kormányos járművek használata, a játék pénzneme és a városok neveinek nyelve.
 
 \begin{figure}[h!]
 	\centering
@@ -35,7 +35,7 @@ A játékot elindítva a főmenü (\ref{fig:menu}. ábra) fogadja a felhasznál�
 
 A "Beállítások" menüpontban már a játék szabályaira tudunk kihatni. Például tudunk infláció szimulálást be vagy ki kapcsolni, a térképgenerálás paramétereit tudjuk változtatni, a katasztrófákat tudjuk ki- és bekapcsolni, állítani az előfordulásuk gyakoriságát stb.
 
-Az "MI/Játékszkript beállítások" menüpontban (\ref{fig:mibeall}. ábra) tudjuk beállítani, hogy egyjátékos módban, hány AI-t szeretnénk a játékunkban, valamint milyen gyakorisággal jelenjenek meg, és ha erre a fejlesztő lehetőséget ad, az AI kalibrálására is van lehetőség, hasonlóan, az egyéb játékszkripteket is itt tudjuk hozzáadni a játékunkhoz és tudjuk őket beállítani. A bal felső sarokban lévő számláló állításával van lehetőségünk növelni az ellenfelek számát, alapértelmezetten a játékban előforduló AI véletlenszerű lesz, de a hely kiválasztásánál be tudjuk állítani egy konkrét AI-t is.
+Az "MI/Játékszkript beállítások" menüpontban (\ref{fig:mibeall}. ábra) tudjuk beállítani, hogy egyjátékos módban, hány AI-t szeretnénk a játékunkban, valamint milyen gyakorisággal jelenjenek meg, és ha erre a fejlesztő lehetőséget ad, az AI kalibrálására is van lehetőség. Hasonlóan az egyéb játékszkripteket is itt tudjuk hozzáadni a játékunkhoz és lehetséges őket beállítani. A bal felső sarokban lévő számláló állításával van lehetőségünk növelni az ellenfelek számát, alapértelmezetten a játékban előforduló AI véletlenszerű lesz, de a hely kiválasztásánál be tudjuk állítani egy konkrét AI-t is.
 
 \begin{figure}[h!]
 	\centering
@@ -44,7 +44,7 @@ Az "MI/Játékszkript beállítások" menüpontban (\ref{fig:mibeall}. ábra) tu
 	\label{fig:mibeall}
 \end{figure}
 
-A "Letölthető tartalmak" menüpontban van lehetőségünk kibővíteni az alapjátékot különböző szkriptekkel, AI-okkal, hang és grafikai csomagokkal és egyéni térképekkel. Mindezt a BaNaNas repository segítségével tudjuk megtenni a játékon belül, erről későbbiekben lesz még szó \cite{openttdbananas}. 
+A "Letölthető tartalmak" menüpontban van lehetőségünk kibővíteni az alapjátékot különböző szkriptekkel, AI-okkal, hang és grafikai csomagokkal és egyéni térképekkel. Mindezt a BaNaNaS repository segítségével tudjuk megtenni a játékon belül, erről későbbiekben lesz még szó \cite{openttdbananas}. 
 
 A menü többi pontja magától értetődő, vagy nem fontos a játékmenet szempontjából. Egy új játék megkezdéséhez egy pályát kell generálnunk, vagy egy korábbit betöltenünk a megfelelő menüpont kiválasztásával. A menü közepén látható négy kép, a különböző játék éghajlatra vonatkozik. Balról az első az alapvető beállítás, a mérsékelt. A dolgozat ennek a körülményeiben fog továbbhaladni. Az "Új Játék" menüpont kiválasztása után, a képek közül kiválasztott játékszabályokkal történő pályagenerálás menüjébe(\ref{fig:generalas}. ábra) kerülünk, ahol a képek újra megjelennek és lehetőségünk van ismét változtatni. Itt tudjuk beállítani, hogy a pálya mennyire legyen dombos, milyen gyakorisággal forduljanak elő városok, gyárak, folyók és hogy a játék milyen dátumon induljon el.
 
@@ -55,14 +55,14 @@ A menü többi pontja magától értetődő, vagy nem fontos a játékmenet szem
 	\label{fig:generalas}
 \end{figure}
 
-A zöld "Generál" gomb lenyomása után, egy véletlenszerű seed szerint hoz nekünk létre egy pályát a játék. A játék felülete ilyenkor \aref{fig:palya} ábrán látható módon jelenik meg. Az alsó információs sávon található a játékállapot jelenlegi dátuma, mellette egy sávban különböző hírek jelennek meg, például változások gyárak termelései között, újságcikkek c égek tevékenységeiről, jobb szélen pedig a játékos cégének aktuális egyenlegét láthatjuk.
+A zöld "Generál" gomb lenyomása után, egy véletlenszerű seed szerint hoz nekünk létre egy pályát a játék. A játék felülete ilyenkor \aref{fig:palya} ábrán látható módon jelenik meg. Az alsó információs sávon található a játékállapot jelenlegi dátuma, mellette egy sávban különböző hírek jelennek meg, például változások gyárak termelései között, újságcikkek cégek tevékenységeiről, jobb szélen pedig a játékos cégének aktuális egyenlegét láthatjuk.
 
 A felső eszközsávban érhetőek el a játékmenethez tartozó tevékenységek. Ez a sáv tagolva van, nagyjából aszerint csoportosítva hogy milyen feladatot látnak el az adott opciók. Ezeket Balról jobbra haladva hasonlóan lehetne besorolni mint:
 
 \begin{itemize}
 	\item Játékállapot befolyásolása. Szünetelés, gyorsítás, játék mentése, betöltése, beállítások megnyitása.
 	\item Pályával kapcsolatos információk. Városok listájának, térképnek a  megnyitása, extra nézet hozzáadása, támogatások listájának megnyitása.
-	\item Cégekkel kapcsolatos információk. Cégek listája, céggel kapcsolatos grafikonok, cégek pénzügyei, szállítmány okkal kapcsolatos információk.
+	\item Cégekkel kapcsolatos információk. Cégek listája, céggel kapcsolatos grafikonok, cégek pénzügyei, szállítmányokkal kapcsolatos információk.
 	\item Járművek. Lista minden cég összes járművéről, csoportosítva a szállítási módszerek szerint.
 	\item Közelítés. A pályára tudunk gombok segítségével közelíteni (Ez a görgővel is megtehető).
 	\item Építkezéssel kapcsolatos eszközök. Eszközök utak, vasutak, megállók, repterek, kikötők, garázsok, járművek építésére, a szállítási módszerek szerint csoportosítva.
